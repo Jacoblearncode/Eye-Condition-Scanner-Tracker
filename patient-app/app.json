@@ -22,14 +22,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-image",
       [
         "expo-camera",
         {
           "cameraPermission": "EyeChecker needs camera access to take eye recovery photos."
         }
-      ],
-      "expo-status-bar"
+      ]
     ]
   }
 }
