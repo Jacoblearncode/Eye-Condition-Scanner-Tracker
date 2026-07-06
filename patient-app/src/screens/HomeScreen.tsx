@@ -1,4 +1,5 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Card, FAB } from 'react-native-paper';
 import { colors } from '../theme/theme';
 
@@ -6,7 +7,7 @@ type Props = { onScanPress: () => void };
 
 export function HomeScreen({ onScanPress }: Props) {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}>
         <Text variant="headlineSmall">Good morning</Text>
         <Card style={styles.statusCard}>
@@ -20,7 +21,7 @@ export function HomeScreen({ onScanPress }: Props) {
         </Card>
       </ScrollView>
       <FAB icon="camera" style={styles.fab} onPress={onScanPress} label="Scan" />
-    </View>
+    </SafeAreaView>
   );
 }
 

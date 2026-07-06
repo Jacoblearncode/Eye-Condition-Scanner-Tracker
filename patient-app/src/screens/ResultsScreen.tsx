@@ -1,4 +1,5 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Card, Button } from 'react-native-paper';
 import { colors } from '../theme/theme';
 
@@ -22,7 +23,7 @@ const SEVERITY_CONFIG = {
 export function ResultsScreen({ finalSeverity, doctorNote, homeCareSteps, onAction }: Props) {
   if (!finalSeverity) {
     return (
-      <View style={styles.pendingContainer}>
+      <SafeAreaView style={styles.pendingContainer} edges={['bottom']}>
         <Text style={styles.pendingIcon}>🕐</Text>
         <Text variant="headlineSmall" style={styles.pendingTitle}>
           Your scan is being reviewed
@@ -31,14 +32,14 @@ export function ResultsScreen({ finalSeverity, doctorNote, homeCareSteps, onActi
           A clinician will review your results shortly. This usually takes 24 hours.
         </Text>
         <Disclaimer />
-      </View>
+      </SafeAreaView>
     );
   }
 
   const config = SEVERITY_CONFIG[finalSeverity];
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}>
         <Card style={[styles.badgeCard, { backgroundColor: `${config.color}22` }]}>
           <Card.Content>
@@ -73,7 +74,7 @@ export function ResultsScreen({ finalSeverity, doctorNote, homeCareSteps, onActi
         {config.actionLabel}
       </Button>
       <Disclaimer />
-    </View>
+    </SafeAreaView>
   );
 }
 

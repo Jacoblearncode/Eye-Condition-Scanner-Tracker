@@ -1,4 +1,5 @@
-import { Modal, View, StyleSheet, Linking } from 'react-native';
+import { Modal, StyleSheet, Linking } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button } from 'react-native-paper';
 import { colors } from '../theme/theme';
 import type { RedFlagSymptom } from '../utils/severityUtils';
@@ -15,7 +16,7 @@ export function RedFlagAlert({ symptom, onDismiss }: Props) {
 
   return (
     <Modal visible transparent={false} animationType="fade">
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.icon}>⚠️</Text>
         <Text style={styles.headline}>Seek Emergency Care Now</Text>
         <Text style={styles.message}>{message}</Text>
@@ -42,7 +43,7 @@ export function RedFlagAlert({ symptom, onDismiss }: Props) {
         <Button mode="text" textColor="#FFFFFF" onPress={onDismiss} style={styles.dismiss}>
           I understand, continue to app
         </Button>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }

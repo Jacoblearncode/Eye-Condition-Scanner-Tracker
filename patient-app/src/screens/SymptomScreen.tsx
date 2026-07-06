@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Chip, Button } from 'react-native-paper';
 import { RedFlagAlert } from '../components/RedFlagAlert';
 import { RED_FLAG_SYMPTOMS, getRedFlagMatch, type RedFlagSymptom } from '../utils/severityUtils';
@@ -36,7 +37,7 @@ export function SymptomScreen({ onSubmit }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}>
         <Text variant="headlineSmall" style={styles.title}>
           How are you feeling today?
@@ -78,7 +79,7 @@ export function SymptomScreen({ onSubmit }: Props) {
       </Button>
 
       <RedFlagAlert symptom={activeRedFlag} onDismiss={() => setRedFlags([])} />
-    </View>
+    </SafeAreaView>
   );
 }
 
