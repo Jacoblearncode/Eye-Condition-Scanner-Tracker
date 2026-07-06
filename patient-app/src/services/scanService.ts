@@ -1,6 +1,6 @@
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db } from './firebase';
+import { uploadPhotoToCloudinary } from './cloudinaryService';
 
 // Matches the scan document shape from the build guide, Section 4.1/4.2.
 // aiAnalysis and doctorNote start empty — they're only ever populated by the
@@ -13,11 +13,7 @@ export async function uploadScan(
   const scanRef = doc(collection(db, 'patients', uid, 'scans'));
   const scanId = scanRef.id;
 
-  const response = await fetch(photoUri);
-  const blob = await response.blob();
-  const storageRef = ref(storage, `scans/${uid}/${scanId}.jpg`);
-  await uploadBytes(storageRef, blob);
-  const photoUrl = await getDownloadURL(storageRef);
+  const photoUrl = await uploadPhotoToCloudinary(photoUri);
 
   await setDoc(scanRef, {
     photoUrl,
