@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../hooks/useAuth';
+import { useScan } from '../hooks/useScan';
 import { AuthScreen } from '../screens/AuthScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ScanScreen } from '../screens/ScanScreen';
 import { SymptomScreen } from '../screens/SymptomScreen';
-import { ResultsScreen, type FinalSeverity } from '../screens/ResultsScreen';
+import { ResultsScreen } from '../screens/ResultsScreen';
+import { uploadScan } from '../services/scanService';
 
 export type RootStackParamList = {
   Onboarding: undefined;
@@ -15,16 +17,26 @@ export type RootStackParamList = {
   Home: undefined;
   Scan: undefined;
   Symptoms: { photoUri: string };
-  Results: undefined;
+  Results: { scanId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+function ResultsScreenContainer({ scanId, onAction }: { scanId: string; onAction: () => void }) {
+  const { finalSeverity, doctorNote, homeCareSteps } = useScan(scanId);
+  return (
+    <ResultsScreen
+      finalSeverity={finalSeverity}
+      doctorNote={doctorNote}
+      homeCareSteps={homeCareSteps}
+      onAction={onAction}
+    />
+  );
+}
+
 export function RootNavigator() {
   const { user, initializing } = useAuth();
   const [hasOnboarded, setHasOnboarded] = useState(false);
-  // TODO: replace with real Firestore-backed value once the scan pipeline is wired up.
-  const [finalSeverity] = useState<FinalSeverity>(null);
 
   if (initializing) return null;
 
@@ -52,14 +64,19 @@ export function RootNavigator() {
               )}
             </Stack.Screen>
             <Stack.Screen name="Symptoms">
-              {({ navigation }) => (
-                <SymptomScreen onSubmit={() => navigation.navigate('Results')} />
+              {({ navigation, route }) => (
+                <SymptomScreen
+                  onSubmit={async (symptoms) => {
+                    const scanId = await uploadScan(user.uid, route.params.photoUri, symptoms);
+                    navigation.navigate('Results', { scanId });
+                  }}
+                />
               )}
             </Stack.Screen>
             <Stack.Screen name="Results">
-              {({ navigation }) => (
-                <ResultsScreen
-                  finalSeverity={finalSeverity}
+              {({ navigation, route }) => (
+                <ResultsScreenContainer
+                  scanId={route.params.scanId}
                   onAction={() => navigation.navigate('Home')}
                 />
               )}

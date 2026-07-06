@@ -16,12 +16,26 @@ const ROUTINE_SYMPTOMS = [
   'Foreign body sensation',
 ];
 
-type Props = { onSubmit: (symptoms: string[]) => void };
+type Props = { onSubmit: (symptoms: string[]) => Promise<void> };
 
 export function SymptomScreen({ onSubmit }: Props) {
   const [selected, setSelected] = useState<string[]>([]);
   const [redFlags, setRedFlags] = useState<RedFlagSymptom[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const activeRedFlag = getRedFlagMatch(redFlags);
+
+  const handleSubmit = async () => {
+    setError(null);
+    setSubmitting(true);
+    try {
+      await onSubmit(selected);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to submit your scan. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const toggle = (symptom: string) => {
     setSelected((prev) =>
@@ -74,7 +88,14 @@ export function SymptomScreen({ onSubmit }: Props) {
         </View>
       </ScrollView>
 
-      <Button mode="contained" style={styles.submit} onPress={() => onSubmit(selected)}>
+      {error && <Text style={styles.error}>{error}</Text>}
+      <Button
+        mode="contained"
+        style={styles.submit}
+        onPress={handleSubmit}
+        loading={submitting}
+        disabled={submitting}
+      >
         Next
       </Button>
 
@@ -93,4 +114,5 @@ const styles = StyleSheet.create({
   chip: {},
   emergencyTitle: { marginBottom: 8, color: '#EF4444' },
   submit: { margin: 16 },
+  error: { color: '#EF4444', marginHorizontal: 16 },
 });
