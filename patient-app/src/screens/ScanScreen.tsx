@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Text, Button, IconButton } from 'react-native-paper';
 
@@ -31,6 +31,7 @@ export function ScanScreen({ onPhotoConfirmed }: Props) {
   if (capturedUri) {
     return (
       <View style={styles.container}>
+        <Image source={{ uri: capturedUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
         <View style={styles.previewOverlay}>
           <Button mode="outlined" textColor="#FFFFFF" onPress={() => setCapturedUri(null)}>
             Retake

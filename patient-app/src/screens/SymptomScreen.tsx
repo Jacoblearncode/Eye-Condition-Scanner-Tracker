@@ -37,7 +37,7 @@ export function SymptomScreen({ onSubmit }: Props) {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}>
         <Text variant="headlineSmall" style={styles.title}>
           How are you feeling today?
         </Text>
@@ -84,6 +84,7 @@ export function SymptomScreen({ onSubmit }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  scrollView: { flex: 1 },
   scroll: { padding: 16 },
   title: { marginBottom: 4 },
   subtitle: { marginBottom: 16, opacity: 0.7 },

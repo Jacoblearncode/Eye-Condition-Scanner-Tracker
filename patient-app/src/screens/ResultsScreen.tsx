@@ -39,7 +39,7 @@ export function ResultsScreen({ finalSeverity, doctorNote, homeCareSteps, onActi
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}>
         <Card style={[styles.badgeCard, { backgroundColor: `${config.color}22` }]}>
           <Card.Content>
             <Text variant="titleLarge" style={{ color: config.color }}>
@@ -88,6 +88,7 @@ function Disclaimer() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  scrollView: { flex: 1 },
   scroll: { padding: 16 },
   pendingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
   pendingIcon: { fontSize: 48, marginBottom: 16 },

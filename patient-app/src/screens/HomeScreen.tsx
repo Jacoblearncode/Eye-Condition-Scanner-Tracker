@@ -7,7 +7,7 @@ type Props = { onScanPress: () => void };
 export function HomeScreen({ onScanPress }: Props) {
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}>
         <Text variant="headlineSmall">Good morning</Text>
         <Card style={styles.statusCard}>
           <Card.Content>
@@ -26,6 +26,7 @@ export function HomeScreen({ onScanPress }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  scrollView: { flex: 1 },
   scroll: { padding: 16 },
   statusCard: { marginTop: 16, backgroundColor: colors.surface },
   fab: { position: 'absolute', right: 16, bottom: 24, backgroundColor: colors.primary },
