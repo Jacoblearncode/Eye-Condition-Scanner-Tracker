@@ -25,7 +25,8 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
   document at `patients/{uid}/scans/{scanId}`
 - Live scan subscription (`src/hooks/useScan.ts`) — Results screen updates the moment a doctor
   sets `aiAnalysis.finalSeverity`, no polling
-- Auth state hook (`src/hooks/useAuth.ts`)
+- Auth state hook (`src/hooks/useAuth.ts`) — session persists across app restarts via
+  `initializeAuth` + `getReactNativePersistence(AsyncStorage)`
 - Screens: Onboarding/Consent, Auth (login/register), Home, Scan (camera capture), Symptom
   Checklist, Results (pending + doctor-confirmed states)
 - Client-side red-flag symptom detection (`src/utils/severityUtils.ts`) and the full-screen
@@ -38,8 +39,6 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
 
 ## Known follow-ups (not yet wired)
 
-- Auth session persistence across app restarts (`getReactNativePersistence` — see comment in
-  `src/services/firebase.ts`)
 - Cloud Function AI pipeline (Vision API + text model) — see build guide Section 8. Requires
   upgrading the Firebase project to the Blaze plan (Cloud Functions calling external APIs require
   billing enabled, regardless of Cloudinary being used for photo storage)
@@ -171,6 +170,30 @@ async function handleSubmit() {
 The issue was that `navigation.navigate()` was firing before the async `uploadScan()` completed.
 By awaiting the upload first, we ensure the Firestore document is created before the Results
 screen tries to subscribe to it with `useScan(scanId)`.
+
+### Auth Persistence: `getReactNativePersistence` TypeScript Error
+
+**Issue:** After wiring up `initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) })`
+for session persistence, `tsc` failed with `Module '"firebase/auth"' has no exported member
+'getReactNativePersistence'`, even though the function works fine at runtime.
+
+**Root cause:** Firebase's `package.json` `exports` field for `firebase/auth` only declares TypeScript
+types for the `node` and `browser` conditions — there's no typed `react-native` condition. Metro (the
+RN bundler) still resolves the `react-native` condition at runtime and finds the real
+`getReactNativePersistence` export; `tsc` just can't see its types through the package's export map.
+
+**Solution:** Import it as a separate statement with a `@ts-expect-error` suppressing the missing-types
+error, since the function is verified to exist at runtime:
+
+```ts
+import { initializeAuth, getAuth } from 'firebase/auth';
+// @ts-expect-error - firebase's package.json "exports" field omits RN-specific types,
+// but getReactNativePersistence exists at runtime (Metro resolves the "react-native" condition).
+import { getReactNativePersistence } from 'firebase/auth';
+```
+
+`initializeAuth()` also throws if called twice on the same app (e.g. during Fast Refresh), so it's
+wrapped in a `try/catch` that falls back to `getAuth(app)` — see `src/services/firebase.ts`.
 
 ## Safety note
 

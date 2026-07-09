@@ -1,6 +1,10 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getAuth } from 'firebase/auth';
+// @ts-expect-error - firebase's package.json "exports" field omits RN-specific types,
+// but getReactNativePersistence exists at runtime (Metro resolves the "react-native" condition).
+import { getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Photos are uploaded to Cloudinary (see cloudinaryService.ts), not Firebase Storage -
 // Firebase Storage now requires the paid Blaze plan even for free-tier-sized usage.
@@ -14,10 +18,17 @@ const firebaseConfig = {
 
 const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// TODO: switch to initializeAuth + getReactNativePersistence(AsyncStorage) once wiring
-// up a real Firebase project, so login survives app restarts. getAuth() alone only
-// keeps the session in memory for this scaffold.
-export const auth = getAuth(app);
+// initializeAuth can only be called once per app; on Fast Refresh (or if firebase.ts
+// gets re-evaluated) it throws "already initialized", so fall back to getAuth() in that case.
+let authInstance;
+try {
+  authInstance = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch {
+  authInstance = getAuth(app);
+}
+export const auth = authInstance;
 
 export const db = getFirestore(app);
 export default app;
