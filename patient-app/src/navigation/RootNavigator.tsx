@@ -67,7 +67,7 @@ export function RootNavigator() {
               {({ navigation, route }) => (
                 <SymptomScreen
                   onSubmit={async (symptoms) => {
-                    const scanId = await uploadScan(user.uid, route.params.photoUri, symptoms);
+                    const scanId = await uploadScan(user, route.params.photoUri, symptoms);
                     navigation.navigate('Results', { scanId });
                   }}
                 />

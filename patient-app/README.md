@@ -12,9 +12,12 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
    - Go to Settings → Upload → Upload presets → Add upload preset → set **Signing Mode: Unsigned**
      → save, and copy the preset name
    - Add both values to `.env`
-3. Install dependencies: `npm install`
-4. Start the dev server: `npx expo start`
-5. Paste `../firestore.rules` into Firebase Console → Firestore Database → Rules (replaces the
+3. (Optional) Set up the AI pipeline — see `../ai-pipeline/README.md` — and add the deployed
+   Worker URL to `.env` as `EXPO_PUBLIC_AI_PIPELINE_URL`. Skip this to leave scans unanalyzed
+   (they'll sit at `uploadStatus: 'processing'` for manual clinic review).
+4. Install dependencies: `npm install`
+5. Start the dev server: `npx expo start`
+6. Paste `../firestore.rules` into Firebase Console → Firestore Database → Rules (replaces the
    default test-mode rules, which expire after 30 days and are otherwise wide open)
 
 ## What's implemented
@@ -22,7 +25,10 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
 - Firebase initialization (`src/services/firebase.ts`) — Auth, Firestore
 - Cloudinary photo upload (`src/services/cloudinaryService.ts`) — unsigned upload, no backend
 - Scan pipeline (`src/services/scanService.ts`) — uploads the photo, creates a Firestore scan
-  document at `patients/{uid}/scans/{scanId}`
+  document at `patients/{uid}/scans/{scanId}`, then triggers the AI pipeline
+- AI pipeline trigger (`src/services/aiPipelineService.ts`) — calls the `../ai-pipeline`
+  Cloudflare Worker (Gemini API + Firestore REST write-back) instead of a Firebase Cloud
+  Function, since Cloud Functions require the paid Blaze plan for any outbound API call
 - Live scan subscription (`src/hooks/useScan.ts`) — Results screen updates the moment a doctor
   sets `aiAnalysis.finalSeverity`, no polling
 - Auth state hook (`src/hooks/useAuth.ts`) — session persists across app restarts via
@@ -39,9 +45,6 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
 
 ## Known follow-ups (not yet wired)
 
-- Cloud Function AI pipeline (Vision API + text model) — see build guide Section 8. Requires
-  upgrading the Firebase project to the Blaze plan (Cloud Functions calling external APIs require
-  billing enabled, regardless of Cloudinary being used for photo storage)
 - Appointment booking flow, recovery progress/history screen, push notifications
 - Clinic web dashboard (separate Next.js project, not started yet) — needed before `finalSeverity`
   can ever actually be set on a real scan
@@ -132,6 +135,27 @@ directly to Cloudinary without a backend. The photo URL is stored in Firestore s
 **Why Cloudinary?** Firebase Storage requires a credit card to enable the Blaze plan, even for
 free-tier-sized usage. Cloudinary's free tier (25GB/month) is sufficient for development and small
 deployments, and requires no credit card.
+
+### AI Pipeline: Firebase Cloud Functions → Cloudflare Worker
+
+**Issue:** The build guide's AI pipeline (Vision API + text model, triggered by a Cloud Function
+on scan creation) needs Cloud Functions to make outbound calls to an external AI API. Firebase
+Cloud Functions require the paid Blaze plan for *any* outbound network call, even at $0 usage —
+same billing wall as Firebase Storage.
+
+**Solution:** Replaced the Cloud Function with a **Cloudflare Worker** (`../ai-pipeline`), which
+has a free tier requiring no credit card, and swapped Vision API + a separate text model for the
+**Gemini API** — it's multimodal, so one call does both the image analysis and the text reasoning
+that would've needed two separate services. The Worker verifies the patient's Firebase Auth ID
+token, calls Gemini with the scan photo, and writes the result back to Firestore via the REST API
+using a Firebase service account (same trust level as the Admin SDK — Firestore Security Rules
+don't apply, so no rules changes were needed).
+
+**Why not just enable Blaze?** Blaze requires a credit card on file, even though Cloud Functions'
+own usage would stay within its free tier for a project this size. The whole point of this stack
+is $0 and no billing setup, matching the Cloudinary decision above.
+
+See `../ai-pipeline/README.md` for setup and architecture details.
 
 ### Photo Capture & Preview
 

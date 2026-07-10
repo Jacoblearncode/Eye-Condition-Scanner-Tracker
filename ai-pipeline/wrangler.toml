@@ -1,0 +1,12 @@
+name = "eyechecker-ai-pipeline"
+main = "src/index.ts"
+compatibility_date = "2025-03-01"
+
+# Secrets (set with `wrangler secret put <NAME>`, or in `.dev.vars` for local dev):
+#   FIREBASE_PROJECT_ID
+#   FIREBASE_CLIENT_EMAIL
+#   FIREBASE_PRIVATE_KEY
+#   GEMINI_API_KEY
+
+[vars]
+GEMINI_MODEL = "gemini-2.5-flash"
