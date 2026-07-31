@@ -23,6 +23,23 @@ write the result back to Firestore — without needing a Firebase billing accoun
 patient app only ever reads `aiAnalysis.finalSeverity`, which stays unset until a doctor sets it
 (see the safety note in `patient-app/README.md`).
 
+## Admin endpoint: granting clinic access
+
+`POST /set-clinic-role` sets the `clinic`/`admin` custom claim on a Firebase Auth account, via the
+Identity Toolkit REST API (`src/identityToolkit.ts`) — the same thing `setCustomUserClaims()` does
+in the Admin SDK, but reachable without Cloud Functions. It's guarded by the `ADMIN_SECRET` you
+set as a Worker secret, not by Firebase Auth, since the caller (an admin, manually, via curl) has
+no clinic-role claim yet at bootstrap time:
+
+```
+curl -X POST https://eyechecker-ai-pipeline.<your-subdomain>.workers.dev/set-clinic-role \
+  -H "X-Admin-Secret: <your ADMIN_SECRET>" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "doctor@example.com", "role": "clinic"}'
+```
+
+See `../clinic-dashboard/README.md` for the full staff-onboarding flow this fits into.
+
 Note: the pipeline runs synchronously off the client's request, not a Firestore trigger — this
 keeps everything on free tiers (no Cloud Functions), at the cost of the scan needing an active
 network request to kick off analysis. If a request fails partway, `uploadStatus` is set to
@@ -46,7 +63,11 @@ manually.
    npx wrangler secret put FIREBASE_CLIENT_EMAIL
    npx wrangler secret put FIREBASE_PRIVATE_KEY
    npx wrangler secret put GEMINI_API_KEY
+   npx wrangler secret put ADMIN_SECRET
    ```
+   `ADMIN_SECRET` is any random string you generate yourself (e.g. `openssl rand -hex 32`) — it
+   protects the `/set-clinic-role` admin endpoint described below, and isn't a Google/Firebase
+   value.
 6. Deploy: `npm run deploy`. Wrangler prints the Worker's URL
    (`https://eyechecker-ai-pipeline.<your-subdomain>.workers.dev`).
 7. Add that URL to `patient-app/.env` as `EXPO_PUBLIC_AI_PIPELINE_URL`.

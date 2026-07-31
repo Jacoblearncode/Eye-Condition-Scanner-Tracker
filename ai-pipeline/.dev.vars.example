@@ -9,3 +9,7 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_HERE\n-----END PRIVA
 
 # aistudio.google.com/apikey - free tier, no credit card required.
 GEMINI_API_KEY=your-gemini-api-key
+
+# Any long random string you generate yourself - protects the /set-clinic-role admin
+# endpoint. Not a Google/Firebase value.
+ADMIN_SECRET=your-own-random-secret

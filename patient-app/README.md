@@ -41,13 +41,14 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
 - Navigation wiring (`src/navigation/RootNavigator.tsx`) tying the flow together:
   Onboarding → Auth → Home → Scan → Symptoms → Results
 - Firestore security rules (`../firestore.rules`) — role-based access; clinic role checks rely on
-  a custom auth claim that isn't set anywhere yet, since there's no clinic dashboard to set it
+  a custom auth claim set via the `../ai-pipeline` Worker's admin endpoint (see
+  `../clinic-dashboard/README.md` for the staff-onboarding flow)
+- Clinic web dashboard (`../clinic-dashboard`) — where a doctor reviews the AI's draft and sets
+  `aiAnalysis.finalSeverity`, the only field this app ever shows the patient
 
 ## Known follow-ups (not yet wired)
 
 - Appointment booking flow, recovery progress/history screen, push notifications
-- Clinic web dashboard (separate Next.js project, not started yet) — needed before `finalSeverity`
-  can ever actually be set on a real scan
 
 ## Troubleshooting: Known Issues & Fixes
 

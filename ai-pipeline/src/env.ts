@@ -4,4 +4,5 @@ export interface Env {
   FIREBASE_PRIVATE_KEY: string;
   GEMINI_API_KEY: string;
   GEMINI_MODEL: string;
+  ADMIN_SECRET: string;
 }

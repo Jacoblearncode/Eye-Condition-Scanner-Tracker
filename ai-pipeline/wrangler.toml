@@ -7,6 +7,7 @@ compatibility_date = "2025-03-01"
 #   FIREBASE_CLIENT_EMAIL
 #   FIREBASE_PRIVATE_KEY
 #   GEMINI_API_KEY
+#   ADMIN_SECRET
 
 [vars]
 GEMINI_MODEL = "gemini-2.5-flash"

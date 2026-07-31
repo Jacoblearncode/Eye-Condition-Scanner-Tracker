@@ -1,19 +1,20 @@
 import { SignJWT, importPKCS8 } from 'jose';
 import type { Env } from './env';
 
-let tokenCache: { token: string; expiresAt: number } | null = null;
+const tokenCache = new Map<string, { token: string; expiresAt: number }>();
 
-// Server-to-server OAuth2 flow for the Firestore REST API using a Firebase service
-// account (Firebase Console -> Project Settings -> Service Accounts -> Generate new
-// private key). This is IAM auth, not a Firebase Auth ID token - Firestore Security
-// Rules don't apply to it, same as the Admin SDK. Requires no Blaze plan or billing.
-export async function getFirestoreAccessToken(env: Env): Promise<string> {
+// Server-to-server OAuth2 flow for Google APIs using a Firebase service account (Firebase
+// Console -> Project Settings -> Service Accounts -> Generate new private key). This is IAM
+// auth, not a Firebase Auth ID token - Firestore Security Rules don't apply to it, same as
+// the Admin SDK. Requires no Blaze plan or billing.
+export async function getGoogleAccessToken(env: Env, scope: string): Promise<string> {
   const now = Date.now();
-  if (tokenCache && tokenCache.expiresAt > now + 60_000) return tokenCache.token;
+  const cached = tokenCache.get(scope);
+  if (cached && cached.expiresAt > now + 60_000) return cached.token;
 
   const privateKey = await importPKCS8(env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), 'RS256');
 
-  const assertion = await new SignJWT({ scope: 'https://www.googleapis.com/auth/datastore' })
+  const assertion = await new SignJWT({ scope })
     .setProtectedHeader({ alg: 'RS256' })
     .setIssuer(env.FIREBASE_CLIENT_EMAIL)
     .setSubject(env.FIREBASE_CLIENT_EMAIL)
@@ -34,6 +35,14 @@ export async function getFirestoreAccessToken(env: Env): Promise<string> {
   if (!res.ok) throw new Error(`Failed to obtain Google access token: ${res.status} ${await res.text()}`);
 
   const data = (await res.json()) as { access_token: string; expires_in: number };
-  tokenCache = { token: data.access_token, expiresAt: now + data.expires_in * 1000 };
+  tokenCache.set(scope, { token: data.access_token, expiresAt: now + data.expires_in * 1000 });
   return data.access_token;
+}
+
+export function getFirestoreAccessToken(env: Env): Promise<string> {
+  return getGoogleAccessToken(env, 'https://www.googleapis.com/auth/datastore');
+}
+
+export function getIdentityToolkitAccessToken(env: Env): Promise<string> {
+  return getGoogleAccessToken(env, 'https://www.googleapis.com/auth/identitytoolkit');
 }
