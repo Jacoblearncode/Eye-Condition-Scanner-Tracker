@@ -4,7 +4,7 @@ Living planning document. **Rule: nothing is built until the phase it belongs to
 "Decisions" resolved here.** If something isn't written down in this file, it is an assumption
 and should be confirmed before coding. Update the checkboxes and the Decision Log as we go.
 
-Last updated: 2026-10-25 · Status: **planning, no new code yet**
+Last updated: 2026-10-25 · Status: **planning, no new code yet** · Q1–Q3 and D1 answered
 
 ---
 
@@ -91,14 +91,17 @@ Fill in the "Answer" column; these drive scope.
 
 | ID | Question | Why it matters | Answer |
 |---|---|---|---|
-| Q1 | Which phone(s) will you test on — Android, iPhone, both? (README mentions a Xiaomi.) | Camera APIs, flash, macro behaviour, push notifications differ | _?_ |
-| Q2 | What condition(s) are you tracking right now (e.g. conjunctivitis, stye, chalazion, dry eye, post-surgery healing, pterygium…)? | Decides what "better/worse" means and what the AI should look for | _?_ |
-| Q3 | Timescale: days (acute, e.g. infection) or months (chronic)? How often would you scan? | Reminder cadence, timeline design | _?_ |
+| Q1 | Which phone(s) will you test on — Android, iPhone, both? (README mentions a Xiaomi.) | Camera APIs, flash, macro behaviour, push notifications differ | **Android, Xiaomi** (2026-10-25) |
+| Q2 | What condition(s) are you tracking right now (e.g. conjunctivitis, stye, chalazion, dry eye, post-surgery healing, pterygium…)? | Decides what "better/worse" means and what the AI should look for | **Conjunctivitis** (2026-10-25) |
+| Q3 | Timescale: days (acute, e.g. infection) or months (chronic)? How often would you scan? | Reminder cadence, timeline design | **Daily scans.** Conjunctivitis is an acute episode (days to a few weeks), so a condition has a start and an end ("resolved"). (2026-10-25) |
 | Q4 | Do real doctors/clinics already agree to use this, or is the clinic side hypothetical for now? | Decides whether to build the clinic view now or ship **export/share link** first | _?_ |
 | Q5 | Country/region (for clinic directory, emergency numbers, privacy law)? | Booking data source, emergency copy, GDPR/HIPAA-style obligations | _?_ |
 | Q6 | Are you willing to pay anything (e.g. card for Firebase Blaze / storage)? Today everything is $0 by design. | Drives P3/P4 fixes and storage choice | _?_ |
 | Q7 | "Booking": should the app **book directly** into a clinic's calendar, or **send a request** the clinic confirms? | Direct booking needs clinic integrations; request-based is feasible | _?_ |
 | Q8 | Where do the "suitable doctors" come from — a list you curate, a public directory, clinics who sign up? | There is no doctor data today | _?_ |
+| Q9 | Confirm the D1 interpretation: AI says "features consistent with these reference items" but does **not** name viral/bacterial/allergic until a doctor does. OK? | Defines the line between assistance and diagnosis | _?_ |
+| Q10 | Do you wear contact lenses, and is this your first episode / recurring? Is it one eye or both? | Contact-lens-related infection is a red-flag context; affects the symptom checklist | _?_ |
+| Q11 | Do you have access to an eye clinician (even informally) who could review the symptom reference in D7? | Reference quality is the foundation of the "verifiable" design | _?_ |
 
 ---
 
@@ -106,12 +109,28 @@ Fill in the "Answer" column; these drive scope.
 
 Recommendation shown first. Mark the chosen option and log it in §8.
 
-- **D1 — What does the patient see from the AI?** *(Core product + safety decision.)*
-  The original build was "patient sees only doctor-confirmed results". For self-monitoring that is
-  too restrictive. **Recommended:** the patient sees *observations about change* ("redness looks
-  lower than 3 days ago") clearly labelled as AI-generated and non-diagnostic, but **never** a
-  severity/diagnosis label unless a doctor confirmed it. Red flags stay rule-based and
-  AI-independent. Alternative: keep the strict doctor-only gate.
+- **D1 — What does the patient see from the AI?** ✅ **DECIDED 2026-10-25**
+  The original build was "patient sees only doctor-confirmed results". For self-monitoring that
+  was too restrictive. Decision (owner):
+  1. The AI shows **observations and symptom data that can be referenced and verified** against a
+     curated symptom reference (see D7), for both patient and professional to read. Everything
+     AI-produced is labelled **"AI-assisted · non-diagnostic"**.
+  2. **No severity label and no condition/diagnosis label** is shown as fact until a
+     doctor/specialist has confirmed it.
+  3. Red flags stay rule-based and AI-independent.
+
+  *Interpretation to confirm (see Q9):* "estimate the condition" is read as **"features
+  consistent with items on the reference list"**, not "this is bacterial conjunctivitis". Naming a
+  type (viral / bacterial / allergic) is a diagnosis and waits for a doctor.
+- **D7 — Symptom reference (new, from D1).** The "verify" part needs something to verify
+  *against*. **Recommended:** a small, versioned, curated **conjunctivitis reference** stored in the
+  repo (e.g. `reference/conjunctivitis.json`): each item has an id, plain-language description,
+  what it can look like in a photo vs. what only the patient can report, which clinical
+  patterns it's associated with, and a **source citation** (e.g. NHS, American Academy of
+  Ophthalmology). The AI must output observations as **references to those ids** (structured
+  output), not free medical prose; the UI shows the item and its source so anyone can check it.
+  The content must be sourced from reputable published guidance and ideally **reviewed by an
+  eye clinician** — I will not invent medical claims.
 - **D2 — How do we measure "redness / swelling / healing"?**
   Options: (a) ask Gemini for a fixed rubric score per photo — easy but noisy across time;
   (b) send **pairs** of photos (previous vs. current) and ask for *change*, which is more reliable;
@@ -158,7 +177,10 @@ Each step has an acceptance check. `[ ]` = not started.
 ### Phase 1 — Consistent, high-quality capture
 *Goal: photos that can be fairly compared. Without this, trend analysis is meaningless.*
 
-Decisions needed first: Q1, Q2.
+Decisions needed first: ~~Q1~~, ~~Q2~~ (answered). Xiaomi-specific notes: test on the real device;
+check which physical camera `expo-camera` selects (some Xiaomi phones expose wide/macro lenses
+separately and the default may not be the sharpest at close range); MIUI/HyperOS can restrict
+camera/background behaviour, so verify permissions early.
 
 - [ ] 1.1 Eye-side + condition tag on every scan (left / right / both).
 - [ ] 1.2 Capture guidance overlay (framing guide, distance prompt, "look straight ahead").
@@ -172,26 +194,42 @@ Decisions needed first: Q1, Q2.
 ### Phase 2 — Condition profile & timeline
 *Goal: the app knows what you are tracking and shows real data.*
 
-Decisions needed first: Q2, Q3.
+Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
 
-- [ ] 2.1 Data model: `patients/{uid}/conditions/{id}` (name, eye, start date, notes, status);
-      scans link to a `conditionId`.
-- [ ] 2.2 Condition setup screen (create / pick / close a condition).
-- [ ] 2.3 History/timeline screen (thumbnails by date, filter by condition and eye).
-- [ ] 2.4 Replace hard-coded Home (P7) with real day count, last scan, next reminder.
-- [ ] 2.5 Daily symptom log (pain, discharge, vision, light sensitivity) alongside photos.
+- [ ] 2.1 Data model: `patients/{uid}/conditions/{id}` (name, eye, start date, notes, status
+      `active` | `resolved`, optional doctor-confirmed type); scans link to a `conditionId`.
+      The condition's **type is empty until a doctor confirms it** (D1).
+- [ ] 2.2 Condition setup screen (create / pick / mark resolved). Defaults to "Conjunctivitis"
+      with start date and which eye(s).
+- [ ] 2.3 History/timeline screen — **daily** view (one row per day, missed days visible),
+      filter by condition and eye.
+- [ ] 2.4 Replace hard-coded Home (P7) with real day count since onset, last scan, whether
+      today's scan is done.
+- [ ] 2.5 Daily symptom log alongside the photo, using the D7 reference ids (discharge, itching,
+      grittiness, light sensitivity, pain, vision change, crusting on waking, contact-lens use,
+      one eye vs. both). Structured so it can be charted and shown to a doctor.
       *Accept:* Home and History reflect real Firestore data; no placeholder values remain.
 
 ### Phase 3 — Comparison & trend analysis
 *Goal: answer "is it getting better or worse?"*
 
-Decisions needed first: D1, D2.
+Decisions needed first: ~~D1~~ (decided), D2, D7, Q9.
 
+- [ ] 3.0 Build the D7 conjunctivitis reference (sourced, versioned) and have it clinically
+      reviewed if possible (Q11). Everything below cites it.
 - [ ] 3.1 Side-by-side + slider comparison of any two scans.
 - [ ] 3.2 Redness/swelling metric per D2 (on-device and/or pair-based AI), stored per scan.
 - [ ] 3.3 Trend chart over time (per condition, per eye) with confidence indication.
-- [ ] 3.4 AI "what changed since last scan" summary, clearly labelled non-diagnostic (per D1).
-- [ ] 3.5 Red-flag symptom logic reviewed and unit-tested; independent of AI.
+- [ ] 3.4 AI "what changed since last scan" output as **structured references to D7 items**
+      (observation, which photos/day, confidence), shown to the patient *and* in the clinician
+      view, always labelled **AI-assisted · non-diagnostic**. No severity or diagnosis label until
+      a doctor confirms (D1).
+- [ ] 3.5 Red-flag logic reviewed and unit-tested; independent of AI. Expand beyond today's five
+      to cover conjunctivitis-relevant warning signs (e.g. significant pain, reduced vision,
+      marked light sensitivity, contact-lens wearer with a red painful eye, a newborn) — **exact
+      list to be taken from the D7 sources / clinician, not decided by me**.
+- [ ] 3.6 Doctor-confirmation flow: when a doctor confirms the condition type/severity, it appears
+      as "Confirmed by Dr X on date" and is visually distinct from AI-assisted content.
       *Accept:* with a known set of test photos, direction of change (better/same/worse) matches a
       manual judgement; every AI text shows the disclaimer.
 
@@ -224,7 +262,9 @@ Decisions needed first: Q5, Q7, Q8, D5, D6.
 
 ### Phase 6 — Reminders & notifications
 
-- [ ] 6.1 Scan reminders on the cadence from Q3 (local notifications first).
+- [ ] 6.1 **Daily** scan reminder (local notifications first). Xiaomi/HyperOS battery
+      optimisation often delays or kills scheduled notifications — needs a test on the real
+      phone, and possibly an in-app prompt guiding the user to allow background/autostart.
 - [ ] 6.2 Appointment confirmations/reminders. Note: remote push needs a **development build** (not
       Expo Go) on modern SDKs — confirm before promising it.
 
@@ -258,11 +298,18 @@ Record every decision here with date and reason. Empty until the owner answers �
 | Date | Decision | Reason |
 |---|---|---|
 | 2026-10-25 | Scope is personal-use first; clinics/doctors second; AI assists booking | Owner statement |
+| 2026-10-25 | Platform: Android (Xiaomi). Condition: conjunctivitis. Cadence: daily scans | Owner answers Q1–Q3 |
+| 2026-10-25 | D1: AI shows referenceable/verifiable observations labelled "AI-assisted · non-diagnostic"; no severity or condition label until a doctor/specialist confirms | Owner decision |
+| 2026-10-25 | D7 added: AI observations must map to a curated, sourced symptom reference so they can be verified | Follows from D1 |
 
 ---
 
 ## 9. Suggested next step
 
-Answer **Q1–Q3** and **D1**, then start **Phase 0** (small, safety-focused) followed by
-**Phase 1** (capture quality), because every later feature depends on trustworthy,
-comparable photos.
+Q1–Q3 and D1 are answered. Remaining before/around Phase 0: **Q9** (confirm the diagnosis
+line), **Q10** (contact lenses / one vs. both eyes) and **Q11** (clinician access for reviewing
+the reference). None of these block Phase 0.
+
+Then start **Phase 0** (small, safety-focused) followed by **Phase 1** (capture quality on the
+Xiaomi), because every later feature depends on trustworthy, comparable photos. The D7 reference
+(Phase 3.0) can be drafted in parallel since it needs research and ideally clinician review.
