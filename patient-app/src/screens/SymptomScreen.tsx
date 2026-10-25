@@ -2,23 +2,15 @@ import { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Chip, Button } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { RedFlagAlert } from '../components/RedFlagAlert';
 import { RED_FLAG_SYMPTOMS, getRedFlagMatch, type RedFlagSymptom } from '../utils/severityUtils';
-
-const ROUTINE_SYMPTOMS = [
-  'Redness or pink colouring',
-  'Watery or teary eyes',
-  'Thick discharge or crusting',
-  'Itching or burning sensation',
-  'Sensitivity to light',
-  'Blurred or hazy vision',
-  'Swelling of eyelid',
-  'Foreign body sensation',
-];
+import { ROUTINE_SYMPTOM_IDS } from '../utils/symptomIds';
 
 type Props = { onSubmit: (symptoms: string[]) => Promise<void> };
 
 export function SymptomScreen({ onSubmit }: Props) {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<string[]>([]);
   const [redFlags, setRedFlags] = useState<RedFlagSymptom[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -31,7 +23,9 @@ export function SymptomScreen({ onSubmit }: Props) {
     try {
       await onSubmit(selected);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to submit your scan. Please try again.');
+      // Show a translated message; the raw error text is English-only and not meant for patients.
+      console.warn('Saving the scan failed:', e);
+      setError(t('symptoms.saveFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -54,35 +48,35 @@ export function SymptomScreen({ onSubmit }: Props) {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}>
         <Text variant="headlineSmall" style={styles.title}>
-          How are you feeling today?
+          {t('symptoms.title')}
         </Text>
-        <Text style={styles.subtitle}>Select all that apply</Text>
+        <Text style={styles.subtitle}>{t('symptoms.subtitle')}</Text>
 
         <View style={styles.chipWrap}>
-          {ROUTINE_SYMPTOMS.map((symptom) => (
+          {ROUTINE_SYMPTOM_IDS.map((symptom) => (
             <Chip
               key={symptom}
               selected={selected.includes(symptom)}
               onPress={() => toggle(symptom)}
               style={styles.chip}
             >
-              {symptom}
+              {t(`symptoms.items.${symptom}`)}
             </Chip>
           ))}
         </View>
 
         <Text variant="titleSmall" style={styles.emergencyTitle}>
-          Emergency symptoms
+          {t('symptoms.emergency')}
         </Text>
         <View style={styles.chipWrap}>
-          {(Object.keys(RED_FLAG_SYMPTOMS) as RedFlagSymptom[]).map((key) => (
+          {RED_FLAG_SYMPTOMS.map((key) => (
             <Chip
               key={key}
               selected={redFlags.includes(key)}
               onPress={() => toggleRedFlag(key)}
               style={styles.chip}
             >
-              {RED_FLAG_SYMPTOMS[key].label}
+              {t(`redFlags.${key}.label`)}
             </Chip>
           ))}
         </View>
@@ -96,7 +90,7 @@ export function SymptomScreen({ onSubmit }: Props) {
         loading={submitting}
         disabled={submitting}
       >
-        Next
+        {t('symptoms.next')}
       </Button>
 
       <RedFlagAlert symptom={activeRedFlag} onDismiss={() => setRedFlags([])} />

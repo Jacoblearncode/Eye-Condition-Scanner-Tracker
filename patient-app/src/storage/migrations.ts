@@ -24,6 +24,12 @@ const MIGRATIONS: string[] = [
      symptoms TEXT NOT NULL DEFAULT '[]'
    );
    CREATE INDEX idx_scans_created_at ON scans (created_at DESC);`,
+  // v2: small key/value settings kept on the phone (chosen language, when onboarding finished).
+  // Replaces in-memory state that used to reset on every app launch. See settingsRepository.ts.
+  `CREATE TABLE settings (
+     key TEXT PRIMARY KEY NOT NULL,
+     value TEXT NOT NULL
+   );`,
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.length;

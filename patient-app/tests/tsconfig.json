@@ -9,7 +9,9 @@
   },
   "include": [
     "./*.ts",
-    "../src/storage/**/*.ts"
+    "../src/storage/**/*.ts",
+    "../src/i18n/**/*.ts",
+    "../src/utils/**/*.ts"
   ],
   "exclude": []
 }

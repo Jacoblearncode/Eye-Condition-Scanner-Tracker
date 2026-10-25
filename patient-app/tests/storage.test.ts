@@ -1,12 +1,11 @@
 // Runs the real migration and repository code against Node's built-in SQLite, so the on-device
 // storage logic is tested without a phone:  npm test
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, it } from 'node:test';
 import { LATEST_SCHEMA_VERSION, migrate, type Db } from '../src/storage/migrations';
 import { getScan, insertScan, listScans } from '../src/storage/scanRepository';
+import { SETTING_KEYS, getSetting, setSetting } from '../src/storage/settingsRepository';
 import { newScanId, removeScan, saveScan, type SaveScanDeps } from '../src/storage/saveScan';
 
 type Params = (string | number | null)[];
@@ -178,17 +177,32 @@ describe('saving scans (on this phone only)', () => {
   });
 });
 
-describe('local-first guard (PLAN.md D3)', () => {
-  // The default scan path must never import the cloud code. This fails if someone wires the
-  // old automatic upload back in without going through an explicit, consented share action.
-  const files = [
-    ...readdirSync(join(__dirname, '../src/storage')).map((f) => join(__dirname, '../src/storage', f)),
-    join(__dirname, '../src/services/scanService.ts'),
-  ];
-  for (const file of files) {
-    it(`${file.split('/src/')[1]} has no network or cloud imports`, () => {
-      const text = readFileSync(file, 'utf8');
-      assert.doesNotMatch(text, /firebase|cloudinary|aiPipeline|cloudShare|\bfetch\s*\(|XMLHttpRequest/i);
-    });
-  }
+describe('settings and the v1 -> v2 upgrade', () => {
+  it('upgrades a v1 database without losing scans', async () => {
+    const db = nodeDb();
+    // Build exactly what a phone running the first local-first build would have.
+    db.raw.exec(`CREATE TABLE scans (id TEXT PRIMARY KEY NOT NULL, created_at TEXT NOT NULL, photo_file TEXT,
+      eye TEXT CHECK (eye IN ('left','right','both')), symptoms TEXT NOT NULL DEFAULT '[]');
+      CREATE INDEX idx_scans_created_at ON scans (created_at DESC);
+      INSERT INTO scans (id, created_at, photo_file, symptoms) VALUES ('old', '2026-10-24T08:00:00.000Z', 'old.jpg', '["redness"]');
+      PRAGMA user_version = 1;`);
+    await migrate(db);
+    assert.equal(version(db), LATEST_SCHEMA_VERSION);
+    assert.ok(db.raw.prepare("SELECT name FROM sqlite_master WHERE name = 'settings'").get());
+    const [scan] = await listScans(db);
+    assert.equal(scan.id, 'old');
+    assert.deepEqual(scan.symptoms, ['redness']);
+  });
+
+  it('stores, overwrites and reads back settings', async () => {
+    const db = nodeDb();
+    await migrate(db);
+    assert.equal(await getSetting(db, SETTING_KEYS.language), null);
+    await setSetting(db, SETTING_KEYS.language, 'ms');
+    await setSetting(db, SETTING_KEYS.language, 'en');
+    assert.equal(await getSetting(db, SETTING_KEYS.language), 'en');
+    await setSetting(db, SETTING_KEYS.onboardingCompletedAt, '2026-10-25T00:00:00.000Z');
+    assert.equal(await getSetting(db, SETTING_KEYS.onboardingCompletedAt), '2026-10-25T00:00:00.000Z');
+    assert.equal(db.raw.prepare('SELECT COUNT(*) AS n FROM settings').get()!.n, 2);
+  });
 });

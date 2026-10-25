@@ -16,7 +16,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "allowBackup": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,7 +29,8 @@
           "cameraPermission": "EyeChecker needs camera access to take eye recovery photos."
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-localization"
     ]
   }
 }

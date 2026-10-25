@@ -4,8 +4,10 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
 
 ## Setup
 
-1. Copy `.env.example` to `.env` and fill in your Firebase project's web config
-   (Firebase Console → Project Settings → General → Your apps → SDK setup and configuration).
+1. *(Not needed to scan or view anything on the phone.)* Copy `.env.example` to `.env` and fill
+   in your Firebase project's web config only when you work on the share/booking features that
+   use Firebase (Firebase Console → Project Settings → General → Your apps → SDK setup and
+   configuration). The default app path no longer imports Firebase at all.
 2. Create a free [Cloudinary](https://cloudinary.com) account for photo uploads (Firebase Storage
    now requires the paid Blaze plan, even for free-tier-sized usage). In the Cloudinary dashboard:
    - Copy your **Cloud name** from the dashboard home page
@@ -37,8 +39,16 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
   Function, since Cloud Functions require the paid Blaze plan for any outbound API call
 - Live scan subscription (`src/hooks/useScan.ts`) and `ResultsScreen` — **currently unrouted**.
   They show doctor-confirmed results from Firestore and return with the share flow (Phase 4).
-- Auth state hook (`src/hooks/useAuth.ts`) — session persists across app restarts via
-  `initializeAuth` + `getReactNativePersistence(AsyncStorage)`
+- **No login on the default path** (`PLAN.md` Q15 / 0.10): the app opens to Home after the
+  first-run screen. Onboarding and language are remembered in the on-device `settings` table.
+- **English + Bahasa Malaysia** (`src/i18n/`, `PLAN.md` 0.11): all text lives in
+  `src/i18n/locales/{en,ms}.ts`; `t('...')` keys are type-checked, the Malay file must have the
+  same keys, the language picker is on the first screen and in Settings, and a missing Malay key
+  falls back to English. **The Malay text is a draft: have it reviewed**, especially
+  `redFlags.*`, `disclaimer` and the consent text. Symptoms are stored as language-neutral ids.
+- Auth state hook (`src/hooks/useAuth.ts`) and `AuthScreen` — **currently unrouted** (session
+  persistence via `initializeAuth` + `getReactNativePersistence(AsyncStorage)`). They come back
+  for sharing/booking; translate `AuthScreen` before routing it.
 - Screens: Onboarding/Consent, Auth (login/register), Home, Scan (camera capture), Symptom
   Checklist, Scan Saved (confirms the scan stayed on the phone)
 - Client-side red-flag symptom detection (`src/utils/severityUtils.ts`) and the full-screen

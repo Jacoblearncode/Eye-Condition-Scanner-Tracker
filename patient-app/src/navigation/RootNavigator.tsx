@@ -1,46 +1,72 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAuth } from '../hooks/useAuth';
-import { AuthScreen } from '../screens/AuthScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ScanScreen } from '../screens/ScanScreen';
 import { SymptomScreen } from '../screens/SymptomScreen';
 import { ScanSavedScreen } from '../screens/ScanSavedScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 import { saveScanLocally } from '../services/scanService';
+import { getDb } from '../storage/database';
+import { SETTING_KEYS, getSetting, setSetting } from '../storage/settingsRepository';
 
 export type RootStackParamList = {
   Onboarding: undefined;
-  Auth: undefined;
   Home: undefined;
   Scan: undefined;
   Symptoms: { photoUri: string };
   Saved: { scanId: string };
+  Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// No login (PLAN.md Q15, 0.10): the app works with no account, and nothing on this default
+// path imports Firebase (tests/local-first.test.ts enforces that). An account is only needed
+// for sharing or booking, which come later; AuthScreen stays unrouted until then.
 export function RootNavigator() {
-  const { user, initializing } = useAuth();
-  const [hasOnboarded, setHasOnboarded] = useState(false);
+  // null = still reading the saved choice from the phone.
+  const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
-  if (initializing) return null;
+  useEffect(() => {
+    getDb()
+      .then((db) => getSetting(db, SETTING_KEYS.onboardingCompletedAt))
+      .then((value) => setOnboarded(value !== null))
+      .catch((err) => {
+        console.warn('Could not read the saved onboarding state:', err);
+        setOnboarded(false);
+      });
+  }, []);
+
+  const finishOnboarding = useCallback(async () => {
+    try {
+      const db = await getDb();
+      await setSetting(db, SETTING_KEYS.onboardingCompletedAt, new Date().toISOString());
+    } catch (err) {
+      // Carry on; the owner will just see this screen again next launch.
+      console.warn('Could not save that onboarding finished:', err);
+    }
+    setOnboarded(true);
+  }, []);
+
+  if (onboarded === null) return null;
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!hasOnboarded ? (
+        {!onboarded ? (
           <Stack.Screen name="Onboarding">
-            {() => <OnboardingScreen onContinue={() => setHasOnboarded(true)} />}
+            {() => <OnboardingScreen onContinue={finishOnboarding} />}
           </Stack.Screen>
-        ) : !user ? (
-          <Stack.Screen name="Auth" component={AuthScreen} />
         ) : (
           <>
             <Stack.Screen name="Home">
               {({ navigation }) => (
-                <HomeScreen onScanPress={() => navigation.navigate('Scan')} />
+                <HomeScreen
+                  onScanPress={() => navigation.navigate('Scan')}
+                  onSettingsPress={() => navigation.navigate('Settings')}
+                />
               )}
             </Stack.Screen>
             <Stack.Screen name="Scan">
@@ -66,6 +92,9 @@ export function RootNavigator() {
             </Stack.Screen>
             <Stack.Screen name="Saved">
               {({ navigation }) => <ScanSavedScreen onDone={() => navigation.navigate('Home')} />}
+            </Stack.Screen>
+            <Stack.Screen name="Settings">
+              {({ navigation }) => <SettingsScreen onBack={() => navigation.goBack()} />}
             </Stack.Screen>
           </>
         )}

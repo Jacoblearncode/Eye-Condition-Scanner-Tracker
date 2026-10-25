@@ -1,41 +1,46 @@
 import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button, Checkbox } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import { LanguagePicker } from '../components/LanguagePicker';
 
 type Props = { onContinue: () => void };
 
 export function OnboardingScreen({ onContinue }: Props) {
+  const { t } = useTranslation();
   const [consented, setConsented] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Before you start
-      </Text>
-      <Text style={styles.body}>
-        EyeChecker collects photos of your eye, symptom reports, and recovery timeline data to
-        help your clinic monitor your recovery. This is a progress aid only — it does not replace
-        your doctor's diagnosis or advice.
-      </Text>
-      <View style={styles.consentRow}>
-        <Checkbox
-          status={consented ? 'checked' : 'unchecked'}
-          onPress={() => setConsented(!consented)}
-        />
-        <Text style={styles.consentText}>I agree to the PDPA Privacy Policy</Text>
-      </View>
-      <Button mode="contained" onPress={onContinue} disabled={!consented} style={styles.button}>
-        Continue
-      </Button>
-    </View>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <LanguagePicker />
+        <Text variant="headlineMedium" style={styles.title}>
+          {t('onboarding.title')}
+        </Text>
+        <Text style={styles.body}>{t('onboarding.body')}</Text>
+        <View style={styles.consentRow}>
+          <Checkbox
+            status={consented ? 'checked' : 'unchecked'}
+            onPress={() => setConsented(!consented)}
+          />
+          <Text style={styles.consentText} onPress={() => setConsented(!consented)}>
+            {t('onboarding.consent')}
+          </Text>
+        </View>
+        <Button mode="contained" onPress={onContinue} disabled={!consented}>
+          {t('onboarding.continue')}
+        </Button>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24 },
-  title: { marginBottom: 16 },
+  safe: { flex: 1 },
+  container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  title: { marginTop: 32, marginBottom: 16 },
   body: { marginBottom: 24, lineHeight: 22 },
   consentRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
   consentText: { flex: 1 },
-  button: {},
 });

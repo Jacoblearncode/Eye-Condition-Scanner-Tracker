@@ -1,9 +1,9 @@
 import { Modal, StyleSheet, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { colors } from '../theme/theme';
 import type { RedFlagSymptom } from '../utils/severityUtils';
-import { RED_FLAG_SYMPTOMS } from '../utils/severityUtils';
 
 type Props = {
   symptom: RedFlagSymptom | null;
@@ -11,15 +11,15 @@ type Props = {
 };
 
 export function RedFlagAlert({ symptom, onDismiss }: Props) {
+  const { t } = useTranslation();
   if (!symptom) return null;
-  const { message } = RED_FLAG_SYMPTOMS[symptom];
 
   return (
     <Modal visible transparent={false} animationType="fade">
       <SafeAreaView style={styles.container}>
         <Text style={styles.icon}>⚠️</Text>
-        <Text style={styles.headline}>Seek Emergency Care Now</Text>
-        <Text style={styles.message}>{message}</Text>
+        <Text style={styles.headline}>{t('redFlagAlert.headline')}</Text>
+        <Text style={styles.message}>{t(`redFlags.${symptom}.message`)}</Text>
 
         <Button
           mode="contained"
@@ -28,7 +28,7 @@ export function RedFlagAlert({ symptom, onDismiss }: Props) {
           style={styles.button}
           onPress={() => Linking.openURL('tel:999')}
         >
-          Call Emergency Services
+          {t('redFlagAlert.call')}
         </Button>
         <Button
           mode="contained"
@@ -37,11 +37,11 @@ export function RedFlagAlert({ symptom, onDismiss }: Props) {
           style={styles.button}
           onPress={() => Linking.openURL('https://maps.google.com/?q=hospital+near+me')}
         >
-          Find Nearest Hospital
+          {t('redFlagAlert.hospital')}
         </Button>
 
         <Button mode="text" textColor="#FFFFFF" onPress={onDismiss} style={styles.dismiss}>
-          I understand, continue to app
+          {t('redFlagAlert.dismiss')}
         </Button>
       </SafeAreaView>
     </Modal>

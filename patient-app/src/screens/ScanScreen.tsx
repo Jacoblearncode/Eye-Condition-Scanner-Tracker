@@ -3,10 +3,12 @@ import { View, StyleSheet, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Text, Button, IconButton } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 type Props = { onPhotoConfirmed: (uri: string) => void };
 
 export function ScanScreen({ onPhotoConfirmed }: Props) {
+  const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedUri, setCapturedUri] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
@@ -17,9 +19,9 @@ export function ScanScreen({ onPhotoConfirmed }: Props) {
   if (!permission.granted) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.permissionText}>We need camera access to take your eye photo.</Text>
+        <Text style={styles.permissionText}>{t('scan.permission')}</Text>
         <Button mode="contained" onPress={requestPermission}>
-          Grant Permission
+          {t('scan.grant')}
         </Button>
       </View>
     );
@@ -36,10 +38,10 @@ export function ScanScreen({ onPhotoConfirmed }: Props) {
         <Image source={{ uri: capturedUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
         <View style={[styles.previewOverlay, { bottom: insets.bottom + 32 }]}>
           <Button mode="outlined" textColor="#FFFFFF" onPress={() => setCapturedUri(null)}>
-            Retake
+            {t('scan.retake')}
           </Button>
           <Button mode="contained" onPress={() => onPhotoConfirmed(capturedUri)}>
-            Use Photo
+            {t('scan.usePhoto')}
           </Button>
         </View>
       </View>

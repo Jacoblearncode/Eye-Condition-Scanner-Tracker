@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { colors } from '../theme/theme';
 
 type Props = { onDone: () => void };
@@ -8,25 +9,20 @@ type Props = { onDone: () => void };
 // Shown after a scan is saved. The scan lives only on this phone: nothing was uploaded, and no
 // AI or doctor has looked at it (PLAN.md D1/D3). Doctor review returns with the share flow (Phase 4).
 export function ScanSavedScreen({ onDone }: Props) {
+  const { t } = useTranslation();
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.content}>
         <Text style={styles.icon}>✓</Text>
         <Text variant="headlineSmall" style={styles.title}>
-          Scan saved on this phone
+          {t('saved.title')}
         </Text>
-        <Text style={styles.body}>
-          Your photo and symptoms were stored only on this device. Nothing was uploaded or sent to
-          anyone.
-        </Text>
+        <Text style={styles.body}>{t('saved.body')}</Text>
       </View>
       <Button mode="contained" style={styles.action} onPress={onDone}>
-        Done
+        {t('common.done')}
       </Button>
-      <Text style={styles.disclaimer}>
-        This app is a recovery progress aid and does not replace medical diagnosis. Always follow
-        your doctor's advice.
-      </Text>
+      <Text style={styles.disclaimer}>{t('disclaimer')}</Text>
     </SafeAreaView>
   );
 }
