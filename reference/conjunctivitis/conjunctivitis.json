@@ -1,0 +1,394 @@
+{
+  "meta": {
+    "id": "conjunctivitis-reference",
+    "version": "0.1.0-draft",
+    "status": "draft-not-clinician-reviewed",
+    "drafted": "2026-10-25",
+    "draftedBy": "AI-drafted from the cited web sources; no clinician has reviewed or approved any item",
+    "purpose": "Language-neutral list of conjunctivitis symptoms, risk factors, triggers, self-care and contact-your-clinic rules, each tied to a published source, so the app's AI observations and guided questions can be checked against something verifiable (PLAN.md D1, D7).",
+    "notLegalOrMedicalAdvice": true,
+    "regionNote": "All sources are UK/US public-health pages. Malaysian practice, emergency numbers and clinic thresholds may differ; the pilot clinic must confirm before anything is shown to a patient as guidance.",
+    "dTwoRule": "Nothing in this file names a type (viral / bacterial / allergic) or a severity as a conclusion. Rules only produce an advice-to-contact message, never a diagnosis or severity label (PLAN.md D1/Q9).",
+    "translations": { "en": "draft", "ms": "not translated", "note": "Translation counts as an adaptation of NHS content under the NHS terms, and medical wording needs review in each language." },
+    "accessed": "2026-10-25"
+  },
+
+  "sources": [
+    {
+      "id": "S1",
+      "publisher": "NHS (UK)",
+      "title": "Conjunctivitis",
+      "url": "https://www.nhs.uk/conditions/conjunctivitis/",
+      "lastReviewed": "2024-04-23",
+      "nextReviewDue": "2027-04-23",
+      "licence": "Open Government Licence v3.0 (NHS Website Content), with NHS conditions on attribution and on adapting content; images are third-party. See README.md.",
+      "audience": "patients"
+    },
+    {
+      "id": "S2",
+      "publisher": "National Eye Institute, US National Institutes of Health",
+      "title": "Pink Eye",
+      "url": "https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/pink-eye",
+      "lastUpdated": "2025-11-05",
+      "licence": "US government page; confirm the site's reuse notice before copying text (paraphrase used here).",
+      "audience": "patients"
+    },
+    {
+      "id": "S3",
+      "publisher": "MedlinePlus Medical Encyclopedia (US National Library of Medicine; content from A.D.A.M.)",
+      "title": "Conjunctivitis or pink eye",
+      "url": "https://medlineplus.gov/ency/article/001010.htm",
+      "reviewDate": "2024-07-09",
+      "reviewedBy": "Audrey Tai, DO, MS (updated by); also reviewed by David C. Dugdale, MD, and the A.D.A.M. Editorial team",
+      "licence": "Third-party (A.D.A.M.) content on a US government site; treat as cite-and-paraphrase only unless reuse is confirmed.",
+      "audience": "patients"
+    },
+    {
+      "id": "S4",
+      "publisher": "MedlinePlus (US National Library of Medicine)",
+      "title": "Pink Eye (health topic summary)",
+      "url": "https://medlineplus.gov/pinkeye.html",
+      "licence": "Summary text is NIH-sourced; confirm reuse notice before copying (paraphrase used here).",
+      "audience": "patients"
+    }
+  ],
+
+  "items": [
+    {
+      "id": "sym.redness",
+      "type": "symptom",
+      "labelEn": "Red or pink eye",
+      "askEn": "Is the white of your eye red or pink? Which eye(s)?",
+      "reportedBy": "photo-and-patient",
+      "photoVisibleByApp": true,
+      "claims": [
+        { "source": "S1", "where": "Symptoms", "says": "Listed first among what conjunctivitis makes the eyes: red.", "quote": "red" },
+        { "source": "S2", "where": "Symptoms", "says": "Pink or red eyes are the first-listed common symptom." },
+        { "source": "S3", "where": "Symptoms", "says": "Redness in the eyes is listed." }
+      ]
+    },
+    {
+      "id": "sym.itching",
+      "type": "symptom",
+      "labelEn": "Itching",
+      "askEn": "Do your eyes itch?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "claims": [
+        { "source": "S1", "where": "Symptoms", "says": "Itch is listed.", "quote": "itch" },
+        { "source": "S2", "where": "Symptoms", "says": "Itchy or burning eyes are listed." },
+        { "source": "S3", "where": "Symptoms", "says": "Itching of the eye is listed." }
+      ]
+    },
+    {
+      "id": "sym.burning",
+      "type": "symptom",
+      "labelEn": "Burning",
+      "askEn": "Do your eyes burn or sting?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "claims": [
+        { "source": "S1", "where": "Symptoms", "says": "Eyes may burn or feel gritty.", "quote": "burn or feel gritty" },
+        { "source": "S2", "where": "Symptoms", "says": "Itchy or burning eyes are listed." }
+      ]
+    },
+    {
+      "id": "sym.gritty",
+      "type": "symptom",
+      "labelEn": "Gritty feeling / something stuck in the eye",
+      "askEn": "Does it feel like there is sand or something stuck in your eye?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "claims": [
+        { "source": "S1", "where": "Symptoms", "says": "Eyes may feel gritty." },
+        { "source": "S2", "where": "Symptoms (may also cause)", "says": "A feeling like something is stuck in the eye." },
+        { "source": "S3", "where": "Symptoms", "says": "A gritty feeling in the eyes is listed." }
+      ]
+    },
+    {
+      "id": "sym.watering",
+      "type": "symptom",
+      "labelEn": "Watery eyes / extra tears",
+      "askEn": "Are your eyes watering more than usual?",
+      "reportedBy": "photo-and-patient",
+      "photoVisibleByApp": true,
+      "claims": [
+        { "source": "S1", "where": "Symptoms", "says": "Water is listed; allergy-related conjunctivitis is described as red and watery." },
+        { "source": "S2", "where": "Symptoms", "says": "Watery eyes are listed." },
+        { "source": "S3", "where": "Symptoms", "says": "Increased tearing is listed." }
+      ]
+    },
+    {
+      "id": "sym.discharge",
+      "type": "symptom",
+      "labelEn": "Discharge (pus / sticky fluid)",
+      "askEn": "Is there any fluid or pus coming from your eye? What colour, and how much?",
+      "reportedBy": "photo-and-patient",
+      "photoVisibleByApp": true,
+      "options": {
+        "colour": ["white", "yellow", "green"],
+        "colourSource": "S2 lists white, yellow, or green fluid. 'None' and 'clear/watery' are app additions, not from a source.",
+        "amount": "App-defined (none / a little / a lot); S2 lists 'a lot of mucus' as a reason to see a doctor."
+      },
+      "claims": [
+        { "source": "S1", "where": "Symptoms", "says": "Eyes may produce pus that sticks to the lashes; conjunctivitis with sticky pus is described as contagious.", "quote": "produce pus that sticks to lashes" },
+        { "source": "S2", "where": "Symptoms", "says": "White, yellow, or green fluid (discharge) is listed." }
+      ]
+    },
+    {
+      "id": "sym.crusting_lids_stuck",
+      "type": "symptom",
+      "labelEn": "Crust on lids / lids stuck together on waking",
+      "askEn": "Did your eyelids have crust or were they stuck shut when you woke up?",
+      "reportedBy": "photo-and-patient",
+      "photoVisibleByApp": true,
+      "claims": [
+        { "source": "S2", "where": "Symptoms", "says": "Crust along the eyelids or lashes, which may keep the eyes from opening on waking." },
+        { "source": "S3", "where": "Symptoms", "says": "Crusts forming on the eyelid overnight are listed; the page adds they are 'most often caused by bacteria'. Recorded as the source's statement only; this app does not use it to name a type (D1)." }
+      ]
+    },
+    {
+      "id": "sym.lid_swelling",
+      "type": "symptom",
+      "labelEn": "Swollen eyelids / swelling or redness of the skin around the eye",
+      "askEn": "Are your eyelids or the skin around your eyes swollen or red?",
+      "reportedBy": "photo-and-patient",
+      "photoVisibleByApp": true,
+      "claims": [
+        { "source": "S2", "where": "Symptoms (may also cause)", "says": "Swollen eyelids are listed." },
+        { "source": "S3", "where": "When to contact a professional", "says": "Eyelids or the skin around the eyes becoming swollen or red is a reason to contact a provider." },
+        { "source": "S4", "where": "Summary", "says": "Conjunctivitis can cause swelling." }
+      ]
+    },
+    {
+      "id": "sym.pain",
+      "type": "symptom",
+      "labelEn": "Eye pain",
+      "askEn": "Does your eye hurt? How bad, and when (at rest, when opening, in light)?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "scaleNote": "A 0-10 pain scale and the 'when' options are app design, not from a source. Sources only distinguish ordinary discomfort from a lot of / severe / worsening pain.",
+      "claims": [
+        { "source": "S2", "where": "Intro and 'When do I need to see a doctor'", "says": "The eye may feel itchy and painful; 'a lot of pain' is a reason to see a doctor." },
+        { "source": "S3", "where": "Symptoms and when to contact", "says": "Eye pain is a listed symptom; pain that is severe or becoming worse is a reason to contact a provider." },
+        { "source": "S1", "where": "Urgent advice", "says": "Pain in the eyes is listed under 'ask for an urgent GP appointment or get help from NHS 111' and described as possibly a sign of a more serious eye problem." }
+      ]
+    },
+    {
+      "id": "sym.light_sensitivity",
+      "type": "symptom",
+      "labelEn": "Sensitivity to light",
+      "askEn": "Is light uncomfortable or painful for your eyes? Can you open them easily, with pain, or not at all?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "scaleNote": "'Easily / with pain / not at all' and a 0-10 scale are app design (Q17), not from a source.",
+      "claims": [
+        { "source": "S2", "where": "Symptoms (may also cause)", "says": "Sensitivity to bright light is listed; blurry vision or light sensitivity that does not get better after wiping away discharge is a reason to see a doctor." },
+        { "source": "S3", "where": "Symptoms and when to contact", "says": "Sensitivity to light is a listed symptom and a reason to contact a provider." },
+        { "source": "S1", "where": "Urgent advice", "says": "Sensitivity to light is listed under 'ask for an urgent GP appointment or get help from NHS 111' and described as possibly a sign of a more serious eye problem." }
+      ]
+    },
+    {
+      "id": "sym.blurred_vision",
+      "type": "symptom",
+      "labelEn": "Blurred vision",
+      "askEn": "Is your vision blurry? Does it clear when you blink or wipe away discharge?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "claims": [
+        { "source": "S2", "where": "Symptoms (may also cause)", "says": "Blurry vision is listed; if it does not get better after wiping away discharge it is a reason to see a doctor." },
+        { "source": "S3", "where": "Symptoms and when to contact", "says": "Blurred vision is a listed symptom; vision being affected is a reason to contact a provider." },
+        { "source": "S4", "where": "Summary", "says": "Pink eye usually does not affect vision." }
+      ]
+    },
+    {
+      "id": "sym.vision_flashes_wavy",
+      "type": "symptom",
+      "labelEn": "Wavy lines or flashing in vision",
+      "askEn": "Do you see wavy lines or flashes of light?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "claims": [
+        { "source": "S1", "where": "Urgent advice", "says": "Changes in vision, like wavy lines or flashing, are listed under urgent advice, as possible signs of a more serious eye problem.", "quote": "changes in your vision, like wavy lines or flashing" }
+      ]
+    },
+    {
+      "id": "sym.very_red_eye",
+      "type": "symptom",
+      "labelEn": "Very red eye (one or both)",
+      "askEn": "Is your eye very red (much redder than usual for you)?",
+      "reportedBy": "photo-and-patient",
+      "photoVisibleByApp": true,
+      "claims": [
+        { "source": "S1", "where": "Urgent advice", "says": "Very red eyes (one eye or both) are listed under urgent advice.", "quote": "very red eyes (1 eye or both eyes)" },
+        { "source": "S2", "where": "When do I need to see a doctor", "says": "'Your eye is very red' is a reason to go to the doctor." }
+      ]
+    },
+    {
+      "id": "sym.ear_lump",
+      "type": "symptom",
+      "labelEn": "Lump in front of the ear",
+      "askEn": "Do you feel a lump in front of your ear?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "claims": [
+        { "source": "S2", "where": "Symptoms (may also cause)", "says": "A lump in front of the ear is listed." }
+      ]
+    },
+    {
+      "id": "sym.headache",
+      "type": "symptom",
+      "labelEn": "Headache alongside eye symptoms",
+      "askEn": "Do you also have a headache?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "claims": [
+        { "source": "S3", "where": "When to contact a professional", "says": "A headache in addition to the other symptoms is a reason to contact a provider." }
+      ]
+    },
+    {
+      "id": "ctx.laterality",
+      "type": "context",
+      "labelEn": "Which eye(s)",
+      "askEn": "Left, right, or both?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": true,
+      "claims": [
+        { "source": "S1", "where": "Symptoms", "says": "Usually affects both eyes.", "quote": "It usually affects both eyes" }
+      ]
+    },
+    {
+      "id": "ctx.lens_discomfort",
+      "type": "context",
+      "labelEn": "Contact lens discomfort (only if lenses are worn)",
+      "askEn": "(Contact lens wearers) Do your lenses feel uncomfortable or not stay in place?",
+      "reportedBy": "patient",
+      "photoVisibleByApp": false,
+      "appliesToProfile": "contact-lens-wearer (the owner wears spectacles, so this is hidden for them)",
+      "claims": [
+        { "source": "S2", "where": "Symptoms", "says": "Contact lenses may feel uncomfortable or not stay in place." }
+      ]
+    }
+  ],
+
+  "riskFactorsAndTriggers": {
+    "note": "Candidate list for the trigger journal (PLAN.md 2.2c). Every entry comes from a source; none is a claim that it caused this owner's episodes.",
+    "items": [
+      { "id": "trg.contact_infected_person", "labelEn": "Contact with someone who has pink eye", "claims": [ { "source": "S2", "where": "Am I at risk", "says": "More likely if you come in contact with someone who has pink eye." } ] },
+      { "id": "trg.recent_respiratory_infection", "labelEn": "Recent cough or cold", "claims": [ { "source": "S2", "where": "Am I at risk", "says": "More likely after a recent respiratory infection like a cough or a cold." } ] },
+      { "id": "trg.allergen", "labelEn": "Contact with something you are allergic to (e.g. pollen, pet fur)", "claims": [ { "source": "S2", "where": "Am I at risk / causes", "says": "Allergies to things like pollen or pet fur can cause pink eye." }, { "source": "S1", "where": "Symptoms", "says": "Allergy-related conjunctivitis such as hay fever makes eyes red and watery; the page says it is not contagious." } ] },
+      { "id": "trg.irritant", "labelEn": "Irritants: chlorinated pool water, air pollution, makeup, smoke, dust, chemicals", "claims": [ { "source": "S2", "where": "Causes", "says": "Pool water with chlorine, air pollution or makeup can bother the eyes and cause pink eye." }, { "source": "S3", "where": "Causes", "says": "Chemicals, smoke and dust can irritate the eye and cause conjunctivitis." } ] },
+      { "id": "trg.contact_lenses", "labelEn": "Contact lens use / overuse (only if lenses are worn)", "claims": [ { "source": "S2", "where": "Am I at risk", "says": "Wearing contact lenses raises the chance." }, { "source": "S3", "where": "Causes", "says": "Over-use of contact lenses can lead to conjunctivitis." } ] },
+      { "id": "trg.dry_eyes", "labelEn": "Dry eyes", "claims": [ { "source": "S3", "where": "Causes", "says": "If eyes are dry, germs and irritants are more likely to cause problems." } ] },
+      { "id": "trg.shared_items", "labelEn": "Shared towels, pillowcases, makeup or glasses", "claims": [ { "source": "S2", "where": "Preventing spread", "says": "Avoid sharing pillows, towels, makeup or glasses." }, { "source": "S1", "where": "Stop it spreading", "says": "Do not share towels and pillows." } ] },
+      { "id": "trg.rubbing_eyes", "labelEn": "Rubbing or touching the eyes", "claims": [ { "source": "S1", "where": "Stop it spreading", "says": "Do not rub your eyes.", "quote": "do not rub your eyes" }, { "source": "S2", "where": "Preventing spread", "says": "Avoid touching or rubbing your eyes." }, { "source": "S3", "where": "Prevention", "says": "Keep hands away from the eye." } ] },
+      { "id": "trg.recent_eye_scratch", "labelEn": "Recently scratched eye", "claims": [ { "source": "S2", "where": "When do I need to see a doctor", "says": "Pink eye symptoms plus wearing contacts or a recently scratched eye is a reason to see a doctor." } ] },
+      { "id": "trg.weakened_immunity", "labelEn": "Health condition that weakens the immune system", "claims": [ { "source": "S2", "where": "When do I need to see a doctor", "says": "A weakened immune system (e.g. cancer or HIV) is a reason to see a doctor." } ] }
+    ]
+  },
+
+  "courseAndDuration": [
+    { "id": "course.typical", "claims": [
+      { "source": "S1", "where": "Intro", "says": "Usually gets better in a couple of weeks without treatment.", "quote": "usually gets better in a couple of weeks without treatment" },
+      { "source": "S2", "where": "Treatment", "says": "Often gets better on its own after 7 to 10 days; sometimes treatment from a doctor is needed." },
+      { "source": "S4", "where": "Summary", "says": "Infection clears in most cases without medical care, but bacterial pink eye needs antibiotic drops or ointment." }
+    ] }
+  ],
+
+  "selfCareAndHygiene": {
+    "note": "Non-medication steps only, each with its source. No drug advice. Sources differ on cold vs warm compresses, so both are kept with their stated purpose; the clinic decides what the app suggests.",
+    "items": [
+      { "id": "care.wash_hands", "labelEn": "Wash hands often (soap and water)", "claims": [ { "source": "S1", "where": "Stop it spreading", "says": "Wash your hands regularly with warm soapy water." }, { "source": "S2", "where": "Preventing spread", "says": "Wash hands often, especially after touching eyes or using eye drops, and before touching your eyes." }, { "source": "S3", "where": "Prevention", "says": "Wash your hands often." } ] },
+      { "id": "care.dont_share", "labelEn": "Do not share towels, pillows, makeup or glasses", "claims": [ { "source": "S1", "where": "Stop it spreading", "says": "Do not share towels and pillows." }, { "source": "S2", "where": "Preventing spread", "says": "Do not share pillows, towels, makeup or glasses." }, { "source": "S3", "where": "Prevention", "says": "Do not share eye makeup or towels." } ] },
+      { "id": "care.wash_linen", "labelEn": "Wash pillowcases and face cloths in hot water", "claims": [ { "source": "S1", "where": "Stop it spreading", "says": "Wash pillow cases and face cloths in hot water and detergent." }, { "source": "S3", "where": "Prevention", "says": "Change pillowcases daily." } ] },
+      { "id": "care.clean_glasses", "labelEn": "Clean your glasses regularly", "claims": [ { "source": "S2", "where": "Preventing spread / getting pink eye again", "says": "Clean your glasses regularly; clean glasses and cases after an episode to help prevent getting it again." } ] },
+      { "id": "care.discard_makeup", "labelEn": "Throw away makeup used during an episode", "claims": [ { "source": "S2", "where": "Preventing getting pink eye again", "says": "Throw away eye makeup, face makeup, brushes or sponges used while you had pink eye." } ] },
+      { "id": "care.clean_lids", "labelEn": "Gently clean crusts from the lids", "claims": [ { "source": "S1", "where": "How to treat it yourself", "says": "Wipe the eyelashes with a clean cotton wool pad and cooled boiled water, one pad per eye." }, { "source": "S2", "where": "Preventing spread", "says": "If there is discharge, wash around the eyes 2 or 3 times a day with a clean wet cloth or fresh cotton ball, washing hands before and after." } ] },
+      { "id": "care.cold_compress", "labelEn": "Cold compress to cool the eyes", "claims": [ { "source": "S1", "where": "How to treat it yourself", "says": "Hold a cold flannel on the eyes for a few minutes." }, { "source": "S3", "where": "Treatment", "says": "Cool compresses may help soothe allergic conjunctivitis." } ] },
+      { "id": "care.warm_compress", "labelEn": "Warm compress for crusty lids", "claims": [ { "source": "S3", "where": "Treatment", "says": "Crustiness of the eyelids can be helped by a warm compress pressed gently on closed eyes." } ] },
+      { "id": "care.no_lenses", "labelEn": "Do not wear contact lenses until the eyes are better (lens wearers)", "claims": [ { "source": "S1", "where": "How to treat it yourself", "says": "Do not wear contact lenses until your eyes are better." } ] }
+    ]
+  },
+
+  "actionRulesCandidates": {
+    "note": "PROPOSED rules only, status needs-clinician-decision. They produce an advice-to-contact message, never a severity or diagnosis label (D1). The sources disagree on thresholds; both wordings are kept. Emergency routing for injuries/chemical exposure is separate and not covered by these four sources (see gaps).",
+    "rules": [
+      {
+        "id": "rule.contact_urgently",
+        "proposedAdvice": "contact-clinic-urgently",
+        "whenAnyOf": ["sym.pain", "sym.light_sensitivity", "sym.vision_flashes_wavy", "sym.very_red_eye"],
+        "claims": [
+          { "source": "S1", "where": "Urgent advice", "says": "Pain in the eyes, sensitivity to light, changes in vision like wavy lines or flashing, or very red eyes: ask for an urgent GP appointment or get help from NHS 111; these can be signs of a more serious eye problem." },
+          { "source": "S2", "where": "When do I need to see a doctor", "says": "More conditional: a lot of pain, a very red eye, or blurry vision / light sensitivity that does not get better after wiping away discharge." },
+          { "source": "S3", "where": "When to contact", "says": "Contact a provider if vision is affected, there is light sensitivity, or pain is severe or getting worse." }
+        ],
+        "disagreement": "S1 lists any pain or light sensitivity as urgent; S2 and S3 use more conditional wording (a lot of / severe / worsening / not improving after wiping discharge). A clinician must decide which wording and threshold the app uses.",
+        "ownerNote": "The owner reports light sensitivity and pain on opening the eyes during episodes, so this rule would fire in every episode. The pilot clinic should say what the app should advise (e.g. 'contact your clinic today') so it neither stays silent nor cries wolf.",
+        "status": "proposed-needs-clinician-decision"
+      },
+      {
+        "id": "rule.contact_not_improving",
+        "proposedAdvice": "contact-clinic",
+        "whenAnyOf": ["course.not_improving"],
+        "claims": [
+          { "source": "S1", "where": "Non-urgent advice", "says": "See a GP if symptoms have not cleared up within 7 days." },
+          { "source": "S2", "where": "When do I need to see a doctor", "says": "Symptoms that do not get better after a few days, or get worse." },
+          { "source": "S3", "where": "When to contact", "says": "Contact a provider if symptoms last longer than 3 or 4 days." }
+        ],
+        "disagreement": "Thresholds differ: 7 days (S1), 'a few days' (S2), 3 or 4 days (S3). A clinician must choose one.",
+        "status": "proposed-needs-clinician-decision"
+      },
+      {
+        "id": "rule.contact_swelling_headache",
+        "proposedAdvice": "contact-clinic",
+        "whenAnyOf": ["sym.lid_swelling", "sym.headache"],
+        "claims": [
+          { "source": "S3", "where": "When to contact", "says": "Swollen or red eyelids/skin around the eyes, or a headache alongside other symptoms, are reasons to contact a provider." }
+        ],
+        "status": "proposed-needs-clinician-decision"
+      },
+      {
+        "id": "rule.newborn",
+        "proposedAdvice": "contact-clinic-urgently",
+        "whenAnyOf": ["profile.age_under_30_days"],
+        "claims": [
+          { "source": "S1", "where": "Advice boxes", "says": "A baby under 30 days with red, sticky eyes: urgent GP appointment or NHS 111." },
+          { "source": "S2", "where": "Pink eye in newborns", "says": "Call a doctor now if a baby has unusual eye discharge or puffy red eyelids." }
+        ],
+        "note": "Not relevant to the owner; kept so the reference is complete if the app is ever used for others.",
+        "status": "proposed-needs-clinician-decision"
+      },
+      {
+        "id": "rule.contact_lens_or_scratch",
+        "proposedAdvice": "contact-clinic",
+        "whenAnyOf": ["profile.wears_contact_lenses", "trg.recent_eye_scratch"],
+        "claims": [
+          { "source": "S2", "where": "When do I need to see a doctor", "says": "Pink eye symptoms plus wearing contacts or a recently scratched eye." },
+          { "source": "S1", "where": "Non-urgent advice", "says": "Contact lens wearer with symptoms plus spots on the eyelids: see a GP (may be a lens allergy)." }
+        ],
+        "note": "Not relevant to the owner today (spectacles only).",
+        "status": "proposed-needs-clinician-decision"
+      },
+      {
+        "id": "rule.weakened_immunity",
+        "proposedAdvice": "contact-clinic",
+        "whenAnyOf": ["trg.weakened_immunity"],
+        "claims": [
+          { "source": "S2", "where": "When do I need to see a doctor", "says": "A health condition that weakens the immune system is a reason to see a doctor." }
+        ],
+        "status": "proposed-needs-clinician-decision"
+      }
+    ]
+  },
+
+  "gapsAndOpenQuestions": [
+    "RECURRENCE: none of the four sources discusses repeated episodes (the owner has had four in about 20 months, Jan 2025 to Sep 2026, roughly 6-7 months apart). No claim about causes or prevention of recurrence is made here; ask the clinic what they advise and whether further assessment is appropriate.",
+    "TYPE vs SYMPTOMS: S2 states it can be hard to work out the exact cause because the symptoms are usually the same. The app therefore does not infer viral/bacterial/allergic from symptoms. Where a source ties a feature to a cause (S1 sticky pus contagious; S1 allergic watery not contagious; S3 crusts 'most often' bacteria), it is recorded only as that source's statement.",
+    "EXISTING RED FLAGS: patient-app/src/utils/severityUtils.ts has five emergency flags (sudden vision loss, flashing lights/floaters, severe pain after injury, chemical exposure, sharp-object injury). None of the four sources covers chemical exposure, injury or sudden vision loss, so those flags are not sourced here. They need their own published guidance (and Malaysian emergency numbers) before they are shown as advice.",
+    "SOURCES WANTED BUT NOT USED: CDC conjunctivitis pages (blocked automated access), NICE CKS (blocked), StatPearls/NCBI Bookshelf (captcha), American Academy of Ophthalmology pages (site forbids copying into AI systems without permission). Clinician-level criteria (e.g. when to refer, differences between types) should come from a clinician or from guidance obtained by the owner/clinic.",
+    "MALAYSIA: no Malaysian source (e.g. Ministry of Health patient information) was used. Thresholds, wording and facility types should be checked against local practice.",
+    "PAIN / LIGHT SENSITIVITY WORDING: S1 treats these as urgent; S2/S3 are more conditional. Needs the clinic's decision (see rule.contact_urgently).",
+    "TRANSLATION: no Bahasa Malaysia text yet; medical wording needs review.",
+    "SCALES: the 0-10 scales, 'easily / with pain / not at all', and 'a little / a lot' amounts are app design for clarity, not taken from sources."
+  ]
+}

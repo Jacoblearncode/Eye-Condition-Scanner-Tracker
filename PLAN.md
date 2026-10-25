@@ -172,6 +172,8 @@ Fill in the "Answer" column; these drive scope.
 | Q15 | Keep the login/account for personal tracking, or make it optional and only ask for it when you share or book? | Local-first means personal tracking doesn't need a server account; login also gates AI use (abuse protection) | **Only when sharing or booking** (2026-10-25). Personal tracking works with no account. *Follow-up (confirmed 2026-10-25):* AI analysis isn't sharing or booking but still needs abuse protection on the Worker — use Firebase **anonymous sign-in** (silent, no email) the first time AI is used, and upgrade it to a full account (keeping the same user id) when the owner shares or books. |
 | Q16 | App language: English only, or also Bahasa Malaysia (or other)? | Affects all screen text, symptom wording and consent text | **Multilingual-compatible** (2026-10-25). Build the app so languages can be added; the specific list isn't chosen yet. **Confirmed:** start with **English + Bahasa Malaysia**, add others (e.g. Chinese, Tamil) later. Medical wording in each language needs review; symptom-reference ids stay language-neutral with translated text per language. |
 | Q17 | During an episode, can you open your eyes for a second or two in a dim room, or never? Is a photo with eyes closed (swollen/crusted lids) acceptable to record? | Decides the capture design for light sensitivity (Phase 1.6) | **Can open them, but it hurts; an eyes-closed photo is acceptable** (2026-10-25). The owner also asked that the patient's condition be **described with better clarity** — read as: because photos will be limited, the structured/written description must carry more weight and be easy to understand (**confirmed 2026-10-25**). See Phase 2.5–2.7. |
+| Q18 | You get pain and light sensitivity in every episode, and NHS lists both as **urgent-contact** signs (NEI/MedlinePlus are more conditional). What should the app do when you log them — e.g. "contact your clinic today" plus a one-tap share/booking? | The draft rule `rule.contact_urgently` would fire every episode; needs your preference and the clinic's thresholds | _?_ (needs owner + clinic) |
+| Q19 | NHS text comes with attribution/adaptation conditions (translation counts as adapting). Agree with: link to NHS pages rather than copy them, and base patient-facing wording on the NIH sources? | Affects how sources are shown and the Bahasa Malaysia plan (see `reference/conjunctivitis/README.md`) | _?_ |
 
 ---
 
@@ -192,7 +194,7 @@ Recommendation shown first. Mark the chosen option and log it in §8.
   *Interpretation to confirm (see Q9):* "estimate the condition" is read as **"features
   consistent with items on the reference list"**, not "this is bacterial conjunctivitis". Naming a
   type (viral / bacterial / allergic) is a diagnosis and waits for a doctor.
-- **D7 — Symptom reference (new, from D1).** The "verify" part needs something to verify
+- **D7 — Symptom reference (new, from D1).** 🟡 **Draft v0.1 written 2026-10-25, NOT clinician-reviewed** — see `reference/conjunctivitis/` (data, validator, review guide). The "verify" part needs something to verify
   *against*. **Recommended:** a small, versioned, curated **conjunctivitis reference** stored in the
   repo (e.g. `reference/conjunctivitis.json`): each item has an id, plain-language description,
   what it can look like in a photo vs. what only the patient can report, which clinical
@@ -277,7 +279,7 @@ Recommendation shown first. Mark the chosen option and log it in §8.
   doctor** based on the patient's specific condition; the **patient still decides** (and sends
   the request). Rules that follow from this and from D1:
   - The recommendation is shown **with its reasons** drawn from the patient's own record (e.g.
-    "4 episodes in 21 months, both eyes, doctor-confirmed type: none yet") so it can be checked.
+    "4 episodes in 20 months, both eyes, doctor-confirmed type: none yet") so it can be checked.
   - The mapping from condition to kind of doctor comes from published guidance / the pilot
     clinic, not from the model's invention; the AI helps phrase and explain it.
   - It is a *suggestion of where to go*, not a diagnosis, and it never lowers a red-flag:
@@ -381,7 +383,7 @@ Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
       be "clearer" than the other and that is visible in trends.
 - [ ] 2.2c **Trigger journal** (optional, quick): possible exposures/habits per day, e.g. contact
       with someone who has red eyes, eye rubbing, new cosmetics, dust/pollen, poor sleep, long
-      screen time, seasonal change. Lists to be chosen with the owner/clinic, not assumed. Goal is
+      screen time, seasonal change. Lists to be chosen with the owner/clinic, not assumed — a sourced candidate list of 10 now exists in the reference (`riskFactorsAndTriggers`) for the owner/clinic to prune or extend. Goal is
       pattern-spotting for the clinic, not claiming a cause.
 - [ ] 2.2d **Medication log:** what the clinic prescribed, start/stop dates, doses taken —
       recorded as the owner enters it; the app gives no medication advice.
@@ -401,7 +403,7 @@ Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
       can open easily / with pain / not at all), discharge (none / watery / sticky / thick; how
       much), lids stuck on waking, swelling, itching/burning/grittiness, vision (clear / blurry),
       which eye(s), and what changed since yesterday. **Exact options and wording come from the D7
-      sources / pilot clinic, not from me**, and are neutral — they describe, they never name a
+      sources / pilot clinic, not from me** (a draft set now exists in the reference, e.g. discharge colour white / yellow / green from NEI), and are neutral — they describe, they never name a
       condition type.
 - [ ] 2.7 **Plain-language condition summary:** generated from the logged data by fixed
       templates (not free AI prose), in the owner's chosen language, readable by the owner and a
@@ -414,7 +416,7 @@ Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
 
 Decisions needed first: ~~D1~~, ~~D2~~, ~~Q9~~ (all decided), D7 (reference content still to be sourced).
 
-- [ ] 3.0 Build the D7 conjunctivitis reference (sourced, versioned) and have it clinically
+- [~] 3.0 **Draft v0.1 written** (`reference/conjunctivitis/`); still needs clinical review. Build the D7 conjunctivitis reference (sourced, versioned) and have it clinically
       reviewed if possible (Q11). Everything below cites it. Datasets in
       `reference/datasets/` serve as visual examples and a sanity-check set only.
 - [ ] 3.1 Side-by-side + slider comparison of any two scans.
@@ -430,7 +432,7 @@ Decisions needed first: ~~D1~~, ~~D2~~, ~~Q9~~ (all decided), D7 (reference cont
 - [ ] 3.5 Red-flag logic reviewed and unit-tested; independent of AI. Expand beyond today's five
       to cover conjunctivitis-relevant warning signs (e.g. significant pain, reduced vision,
       marked light sensitivity, contact-lens wearer with a red painful eye, a newborn) — **exact
-      list to be taken from the D7 sources / clinician, not decided by me**.
+      list to be taken from the D7 sources / clinician, not decided by me**. The draft reference covers pain, light sensitivity, vision changes and very red eye (NHS/NEI/MedlinePlus) but **not** the five emergency flags already in the code (chemical exposure, injury, sudden vision loss…) — those still need sources.
 - [ ] 3.6 Doctor-confirmation flow: when a doctor confirms the condition type/severity, it appears
       as "Confirmed by Dr X on date" and is visually distinct from AI-assisted content.
       *Accept:* with a known set of test photos, direction of change (better/same/worse) matches a
@@ -551,6 +553,7 @@ Record every decision here with date and reason. Empty until the owner answers �
 | 2026-10-25 | **D6 decided:** AI recommends the kind of doctor from the patient's specific condition, with reasons; patient decides and sends; emergency routing stays rule-based. ("No" in the answer read as: AI doesn't decide urgency wording itself — to confirm) | Owner answer |
 | 2026-10-25 | Confirmed: D6 wording ("No" = AI doesn't decide urgency wording); Q17 reading (richer guided description + plain-language summary); Q15 anonymous sign-in for AI use; Q16 English + Bahasa Malaysia first | Owner answers |
 | 2026-10-25 | D7: public datasets may be downloaded and used as **reference** (examples + sanity check), not training and not a clinical authority; images stay out of git/app. Mendeley set `n9zp473wfw` downloaded and inspected; `reference/datasets/` added | Owner decision; inspection findings in `reference/datasets/README.md` |
+| 2026-10-25 | **D7 draft v0.1 written** in `reference/conjunctivitis/`: 17 symptom/context items, 10 trigger candidates, 9 self-care tips, 6 candidate contact rules, from four sources (NHS, NEI, two MedlinePlus pages). Not clinician-reviewed. CDC/NICE/StatPearls were unreachable and AAO forbids AI use, so none of those were used | Owner request ("draft the symptom reference first") |
 | 2026-10-25 | Owner's existing clinic is the first pilot, via share link/PDF; reference marked "not clinician-reviewed" until that clinic reviews it | Owner answers Q4/Q11 |
 
 ---
@@ -562,10 +565,11 @@ Answered: Q1–Q17, D1, D2, D3, D4 (owner-initiated sharing), D5, D6, D8 (condit
 All earlier "to confirm" items are confirmed (Q15, Q16, Q17, D6).
 
 Still outstanding (none block starting):
-- **D7 content:** the conjunctivitis symptom reference must be sourced from published guidance
-  (datasets don't replace that) and ideally reviewed by the pilot clinic. The guided-entry
-  wording (2.6) and doctor-type mapping (5.2) depend on it. *Next concrete step:* I draft it
-  with citations for the owner to review.
+- **D7 clinical review:** the draft reference exists (v0.1); it needs the pilot clinic's review
+  (see its README for the checklist and the review log). Open points for the clinic: the
+  contact-your-clinic thresholds (Q18), recurrence advice, local (Malaysian) practice, and sources
+  for the five existing emergency flags.
+- **Q18 / Q19** (urgent-contact behaviour; how NHS text may be used).
 - **Other datasets:** Kaggle conjunctivitis and Roboflow need the owner's own login to download
   (see `reference/datasets/README.md`); optional.
 
