@@ -4,7 +4,7 @@ Living planning document. **Rule: nothing is built until the phase it belongs to
 "Decisions" resolved here.** If something isn't written down in this file, it is an assumption
 and should be confirmed before coding. Update the checkboxes and the Decision Log as we go.
 
-Last updated: 2026-10-25 · Status: **planning, no new code yet** · Q1–Q14, D1, D3, D5 answered; D2/D8 refined (see §5)
+Last updated: 2026-10-25 · Status: **planning, no new code yet** · Q1–Q17, D1–D3, D5, D6, D8 answered (see §5, §8)
 
 ---
 
@@ -40,8 +40,13 @@ EyeChecker is a **personal eye-condition tracker** for the owner's own use first
   training) happens only when the owner chooses it, and each is a separate, explicit consent.
 - **$0 by default.** Free tiers and on-device storage. Any paid service needs the owner's
   explicit OK first (Q6).
-- **Built for light sensitivity.** During an episode the owner often **cannot open their eyes**
-  because of light sensitivity, so capture and UI must work in that state (see Phase 1).
+- **Built for light sensitivity and pain.** During an episode the owner *can* open their eyes
+  but it **hurts** (light sensitivity), so capture and UI must be quick, dim and gentle, with an
+  eyes-closed option, and must not rely on photos alone (see Phase 1, D2).
+- **Multilingual-ready from the start.** All user-facing text is externalised so languages can
+  be added without rewriting screens (Q16).
+- **Clear descriptions.** Because photos will be limited at the worst moments, the written
+  condition description must be detailed and clear for the patient and for a doctor (Q17).
 - **AI assists, doctors confirm, rules protect.** (D1.)
 
 ---
@@ -164,9 +169,9 @@ Fill in the "Answer" column; these drive scope.
 | Q12 | In your past episodes, was it one eye, both, or did it switch sides? | Decides whether the data model tracks per-eye or per-person, and affects reading of results | **Both eyes** (2026-10-25). Data model is per-eye (left and right each get their own photo and symptoms per scan) so each eye's course can be compared. |
 | Q13 | When you're healthy, do you want a light check-in (e.g. weekly baseline photo) so we can catch the *start* of the next episode early? | Early detection depends on a personal "normal" baseline; adds scans when healthy | **Yes — weekly baseline** (2026-10-25). Daily during an episode, weekly when healthy. |
 | Q14 | Can you recall for past episodes: dates, what the doctor said it was (viral / bacterial / allergic), and medication given? | Lets us seed history and look for patterns behind the 4 recurrences | **Answered in part (2026-10-25)** — see §2.1 "Owner's episode history". Still unknown: exact dates, which eye(s) each time, medication names, and whether the doctor named a type. |
-| Q15 | Keep the login/account for personal tracking, or make it optional and only ask for it when you share or book? | Local-first means personal tracking doesn't need a server account; login also gates AI use (abuse protection) | _?_ |
-| Q16 | App language: English only, or also Bahasa Malaysia (or other)? | Affects all screen text, symptom wording and consent text | _?_ |
-| Q17 | During an episode, can you open your eyes for a second or two in a dim room, or never? Is a photo with eyes closed (swollen/crusted lids) acceptable to record? | Decides the capture design for light sensitivity (Phase 1.6) | _?_ (owner said eyes can't be opened at all when sensitive to light — details needed) |
+| Q15 | Keep the login/account for personal tracking, or make it optional and only ask for it when you share or book? | Local-first means personal tracking doesn't need a server account; login also gates AI use (abuse protection) | **Only when sharing or booking** (2026-10-25). Personal tracking works with no account. *Follow-up proposal (confirm):* AI analysis isn't sharing or booking but still needs abuse protection on the Worker — use Firebase **anonymous sign-in** (silent, no email) the first time AI is used, and upgrade it to a full account (keeping the same user id) when the owner shares or books. |
+| Q16 | App language: English only, or also Bahasa Malaysia (or other)? | Affects all screen text, symptom wording and consent text | **Multilingual-compatible** (2026-10-25). Build the app so languages can be added; the specific list isn't chosen yet. *Proposal:* start with **English + Bahasa Malaysia**, add others (e.g. Chinese, Tamil) later — confirm. Medical wording in each language needs review; symptom-reference ids stay language-neutral with translated text per language. |
+| Q17 | During an episode, can you open your eyes for a second or two in a dim room, or never? Is a photo with eyes closed (swollen/crusted lids) acceptable to record? | Decides the capture design for light sensitivity (Phase 1.6) | **Can open them, but it hurts; an eyes-closed photo is acceptable** (2026-10-25). The owner also asked that the patient's condition be **described with better clarity** — read as: because photos will be limited, the structured/written description must carry more weight and be easy to understand (confirm this reading). See Phase 2.5–2.7. |
 
 ---
 
@@ -228,11 +233,11 @@ Recommendation shown first. Mark the chosen option and log it in §8.
     "infected")** and the **Roboflow** set are external-eye photos; the **Figshare infectious
     keratitis** set (slit-lamp, 3.75 GB) and the **Kaggle fundus** set (10,449 retina images) are
     clinical imaging that a phone camera can't produce, so they don't match this app's input.
-- **D2 — How do we measure "redness / swelling / healing"?** ⏳ **Owner unsure; proposal below
-  needs confirmation.** New fact (2026-10-25): during an episode the owner **cannot open their
-  eyes** (light sensitivity), so a photo of an open eye — which most photo-based measures need —
-  will often be impossible exactly when it matters most. Public datasets don't fix this (they are
-  open-eye web photos). **Proposed: measure with several signals, so photos are one input, not
+- **D2 — How do we measure "redness / swelling / healing"?** ✅ **DECIDED 2026-10-25 (owner: yes
+  to the proposal below).** Fact (2026-10-25): during an episode the owner can open their eyes
+  but it **hurts** (light sensitivity), so open-eye photos will often be painful, brief or
+  unreliable exactly when it matters most. Public datasets don't fix this (they are
+  open-eye web photos). **Decision: measure with several signals, so photos are one input, not
   the only one:**
   1. **Self-ratings every scan** (simple 0–3 or 0–10 scales for redness, pain, light sensitivity,
      discharge, itching), including "could not open eyes" as a recorded fact — light sensitivity
@@ -258,9 +263,19 @@ Recommendation shown first. Mark the chosen option and log it in §8.
 - **D5 — Booking model.** ✅ **DECIDED 2026-10-25 (via Q7):** both are acceptable — a request the
   clinic confirms, or direct calendar booking via the clinic's admins/doctors. Build the
   request-based one first.
-- **D6 — AI's role in booking.** **Recommended:** AI suggests *specialty type and urgency wording*
-  from the condition history, then the app filters the directory; the **patient** chooses and sends.
-  AI never sends a request on its own, and never downgrades a red-flag.
+- **D6 — AI's role in booking.** ✅ **DECIDED 2026-10-25 (owner):** the AI **recommends the kind of
+  doctor** based on the patient's specific condition; the **patient still decides** (and sends
+  the request). Rules that follow from this and from D1:
+  - The recommendation is shown **with its reasons** drawn from the patient's own record (e.g.
+    "4 episodes in 21 months, both eyes, doctor-confirmed type: none yet") so it can be checked.
+  - The mapping from condition to kind of doctor comes from published guidance / the pilot
+    clinic, not from the model's invention; the AI helps phrase and explain it.
+  - It is a *suggestion of where to go*, not a diagnosis, and it never lowers a red-flag:
+    emergency routing stays rule-based and independent of AI.
+  - The AI never sends a booking request itself.
+  - *Ambiguity to confirm:* the owner wrote "D6: No, AI recommends the kind of doctor…". I read
+    "No" as **not** letting the AI decide urgency wording on its own (consistent with the
+    non-goals), while keeping the doctor-type recommendation. If that's wrong, say so.
 
 ---
 
@@ -292,9 +307,17 @@ Each step has an acceptance check. `[ ]` = not started.
 - [ ] 0.7 Fix P11 + P10; verify what `homeCareSteps` the patient can see.
 - [ ] 0.8 Worker hardening (P9) and **make AI analysis stateless** for the personal path:
       receive photo → return structured result, store nothing; CORS restricted; rate-limited.
-      Requires Q15 (does AI use need a login?).
+      Protection without a full login: Firebase anonymous sign-in (Q15 follow-up, to confirm).
 - [ ] 0.9 Write the per-use **consent text** for AI analysis (names Google/Gemini, free-tier
       retention caveat from P4); record the wording in §8.
+- [ ] 0.10 **Optional login (Q15):** the app opens straight to Home after onboarding; the Auth
+      screen appears only when the owner shares or books (anonymous → full account upgrade keeps
+      the same user id). *Accept:* a fresh install can scan and view history with no account.
+- [ ] 0.11 **Multilingual foundation (Q16):** move all user-facing strings (screens, red-flag
+      messages, consent text, disclaimers) into language files behind an i18n library (e.g.
+      `expo-localization` + `i18next`), English first, Bahasa Malaysia next; language
+      switcher in settings. Doing this now is far cheaper than retrofitting. *Accept:* no
+      hard-coded user-visible text left in screens; switching language changes every screen.
 
 ### Phase 1 — Consistent, high-quality capture
 *Goal: photos that can be fairly compared. Without this, trend analysis is meaningless.*
@@ -313,12 +336,14 @@ camera/background behaviour, so verify permissions early.
 - [ ] 1.5 Store capture metadata (device model, resolution, flash on/off, timestamp).
       *Accept:* two photos taken on different days with the guide look framed alike; bad photos
       are refused with a reason.
-- [ ] 1.6 **Light-sensitive capture mode (owner can't open eyes during an episode):**
+- [ ] 1.6 **Light-sensitive capture mode (opening the eyes hurts during an episode, Q17):**
       dark theme and minimum screen brightness on the scan screens; no flash and no bright white
       overlay; hands-free shutter (countdown timer and/or volume-button) so the owner doesn't need
-      to look at the screen; **eyes-closed capture allowed** (eyelid swelling, crusting, discharge
-      still visible); a one-tap "couldn't open my eyes" record with a light-sensitivity rating.
-      Details depend on Q17.
+      to look at the screen; a **short optional "open on the beep" attempt** — the owner opens
+      only for the instant of capture, can skip or cancel at any time, and is never pushed to
+      keep trying if it hurts; **eyes-closed capture is always acceptable** (eyelid swelling,
+      crusting, discharge still visible); one-tap "too painful to open" with a pain /
+      light-sensitivity rating recorded alongside.
 - [ ] 1.7 Two quality-gate profiles: **eyes-open** (baseline/healthy: strict framing, sharpness,
       lighting) and **eyes-closed** (episode: only blur/size checks). The gate must never block
       a scan the owner can barely take — it can warn, not refuse, in episode mode.
@@ -357,15 +382,28 @@ Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
       looks different from the owner's normal. Starts today in healthy mode.
 - [ ] 2.5 Daily symptom log alongside the photo, using the D7 reference ids (discharge, itching,
       grittiness, light sensitivity, pain, vision change, crusting on waking, contact-lens use,
-      one eye vs. both), with simple severity ratings (scale to agree, D2) and a "couldn't open
-      eyes" flag. Structured so it can be charted and shown to a doctor.
+      one eye vs. both), with simple severity ratings (scale to agree, D2) and a "too painful
+      to open" flag. Structured so it can be charted and shown to a doctor.
       *Accept:* Home and History reflect real stored data (on the device); no placeholder
       values remain.
+- [ ] 2.6 **Guided, descriptive symptom entry (Q17 "better clarity"):** instead of one tick-box
+      list, short guided questions with plain-language options and a free-text note, e.g.
+      pain (how bad 0–10, when — at rest / when opening / in light), light sensitivity (how bad;
+      can open easily / with pain / not at all), discharge (none / watery / sticky / thick; how
+      much), lids stuck on waking, swelling, itching/burning/grittiness, vision (clear / blurry),
+      which eye(s), and what changed since yesterday. **Exact options and wording come from the D7
+      sources / pilot clinic, not from me**, and are neutral — they describe, they never name a
+      condition type.
+- [ ] 2.7 **Plain-language condition summary:** generated from the logged data by fixed
+      templates (not free AI prose), in the owner's chosen language, readable by the owner and a
+      doctor: what is happening in each eye, since when, how it changed, what was taken. It is
+      the main content of the visit summary (4.1) and the basis for the doctor-type
+      recommendation (5.2). *Accept:* a non-expert can read it and a clinician finds it unambiguous.
 
 ### Phase 3 — Comparison & trend analysis
 *Goal: answer "is it getting better or worse?"*
 
-Decisions needed first: ~~D1~~ (decided), **D2 (proposal needs owner's OK)**, D7, ~~Q9~~.
+Decisions needed first: ~~D1~~, ~~D2~~, ~~Q9~~ (all decided), D7 (reference content still to be sourced).
 
 - [ ] 3.0 Build the D7 conjunctivitis reference (sourced, versioned) and have it clinically
       reviewed if possible (Q11). Everything below cites it.
@@ -415,12 +453,15 @@ Decisions needed first: ~~Q4~~ (partly), ~~D4~~ (owner-initiated sharing; file/P
 ### Phase 5 — AI-assisted doctor matching & booking
 *Goal: "AI helps set up the booking."*
 
-Decisions needed first: ~~Q5~~ (Malaysia), ~~Q7~~, ~~Q8~~, ~~D5~~, **D6 (still open)**.
+Decisions needed first: ~~Q5~~ (Malaysia), ~~Q7~~, ~~Q8~~, ~~D5~~, ~~D6~~ (all decided).
 
 - [ ] 5.1 Facility directory data model (clinics, hospitals, medical centers; their doctors and
       specialties, address, contact, how they accept bookings) populated from an
       owner-curated, owner-verified list (Q8), starting with the owner's own clinic.
-- [ ] 5.2 AI suggests specialty + urgency wording from the condition history (per D6).
+- [ ] 5.2 **Doctor-type recommendation (D6):** from the patient's own record (2.7 summary,
+      episode count, doctor-confirmed info) → suggested kind of doctor/facility, shown **with
+      reasons**; mapping from published guidance / pilot clinic; patient can ignore it and pick
+      anyone. Emergency routing is separate and rule-based.
 - [ ] 5.3 Browse/filter doctors; patient picks.
 - [ ] 5.4 Booking request: preferred times + attached visit summary → `appointments`.
 - [ ] 5.5 Clinic side: see requests, confirm/decline/propose time; patient sees status.
@@ -464,8 +505,10 @@ Decisions needed first: ~~Q5~~ (Malaysia), ~~Q7~~, ~~Q8~~, ~~D5~~, **D6 (still o
 - Free tiers (Gemini rate limits, Cloudinary, Workers) can change; keep services behind thin
   wrappers (`aiPipelineService`, `cloudinaryService`) so they can be swapped.
 - Booking/clinic data does not exist yet and is the biggest unknown (Q4, Q8).
-- **Light sensitivity limits photos:** exactly when an episode is worst the eyes may not open,
-  so photo-based comparison will have gaps. Self-ratings and eyelid photos fill them (D2).
+- **Light sensitivity and pain limit photos:** exactly when an episode is worst, opening the eyes
+  hurts, so photo-based comparison will have gaps. Self-ratings, eyelid photos and the clear
+  written description fill them (D2, 2.6–2.7). The app must never make the owner keep
+  trying to take a photo that hurts.
 - **Severe light sensitivity may itself be a warning sign** (alongside pain or reduced vision).
   The exact rule must come from the D7 sources / clinician, and the app must not just keep
   asking for scans when that rule fires — it should point the owner to the clinic.
@@ -492,22 +535,31 @@ Record every decision here with date and reason. Empty until the owner answers �
 | 2026-10-25 | D5 decided via Q7: request-based first, calendar booking where admins support it | Owner answer |
 | 2026-10-25 | D8 changed: **no training on public datasets by default**; revisit only for a concrete need that can't be met without training, and only with patients' explicit opt-in consent; still bound by D1 and a regulatory check | Owner decision |
 | 2026-10-25 | New fact: owner can't open eyes during light-sensitive episodes → capture must work eyes-closed; D2 becomes multi-signal (self-ratings + photos + opt-in AI + on-device metric). **D2 is a proposal awaiting owner's OK.** | Owner statement |
+| 2026-10-25 | **Correction:** the owner can open their eyes during an episode but it hurts (earlier entry said "can't open"). Eyes-closed photos are acceptable. Capture is quick, dim, optional-open | Owner answer Q17 |
+| 2026-10-25 | Q15: login only when sharing or booking (proposal: anonymous sign-in for AI use) · Q16: multilingual-compatible from the start (proposal: English + Bahasa Malaysia first) · Q17: clearer, richer condition description (guided entry + plain-language summary) | Owner answers |
+| 2026-10-25 | **D2 decided:** multi-signal measurement (self-ratings, photos, opt-in AI pair comparison, on-device metric), shown separately | Owner: yes |
+| 2026-10-25 | **D6 decided:** AI recommends the kind of doctor from the patient's specific condition, with reasons; patient decides and sends; emergency routing stays rule-based. ("No" in the answer read as: AI doesn't decide urgency wording itself — to confirm) | Owner answer |
 | 2026-10-25 | Owner's existing clinic is the first pilot, via share link/PDF; reference marked "not clinician-reviewed" until that clinic reviews it | Owner answers Q4/Q11 |
 
 ---
 
 ## 9. Suggested next step
 
-Answered: Q1–Q14, D1, D3, D4 (owner-initiated sharing), D5, D8 (conditional). Still open:
-**D2** (confirm the multi-signal proposal), **D6** (AI's role in booking), **Q15** (login
-optional?), **Q16** (language), **Q17** (what light sensitivity allows in practice), and
-verification of the reference (D7). Small gaps in the owner's history (exact dates, drug
-names) can be filled in later in the app.
+Answered: Q1–Q17, D1, D2, D3, D4 (owner-initiated sharing), D5, D6, D8 (conditional).
 
-Because D3 changes the architecture, **Phase 0 now starts with the local-first storage layer**
-(0.3–0.4) before the rules/Worker fixes, which now protect only the shared path. Q15 blocks 0.8
-only.
+Small items to confirm (none block starting):
+- **Q15 follow-up:** anonymous sign-in for AI use, upgraded to a full account on share/book.
+- **Q16 follow-up:** which languages first (proposal: English + Bahasa Malaysia).
+- **Q17 reading:** "better clarity" = richer guided description + plain-language summary.
+- **D6 wording:** "No" read as "AI doesn't decide urgency wording itself".
+- **D7:** the conjunctivitis symptom reference still has to be sourced (and ideally reviewed by
+  the pilot clinic); guided-entry wording (2.6) and doctor-type mapping (5.2) depend on it.
 
-Then start **Phase 0** (small, safety-focused) followed by **Phase 1** (capture quality on the
-Xiaomi), because every later feature depends on trustworthy, comparable photos. The D7 reference
-(Phase 3.0) can be drafted in parallel since it needs research and ideally clinician review.
+**Start Phase 0 in this order** (safety and architecture before features):
+1. 0.1–0.2 Align docs with SDK 54; confirm the current app runs on the Xiaomi (baseline).
+2. 0.3–0.4 Local-first storage; stop automatic upload.
+3. 0.10–0.11 Optional login; multilingual foundation.
+4. 0.5–0.9 Rules and Worker fixes for the shared path; stateless AI call; consent text.
+
+Then **Phase 1** (light-sensitive capture on the Xiaomi). The D7 reference (3.0) can be drafted
+in parallel since it needs research and ideally clinician review.
