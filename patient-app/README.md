@@ -23,18 +23,24 @@ Phase 1 scaffold: Expo + TypeScript + Firebase Auth, matching the screen flow in
 ## What's implemented
 
 - Firebase initialization (`src/services/firebase.ts`) — Auth, Firestore
-- Cloudinary photo upload (`src/services/cloudinaryService.ts`) — unsigned upload, no backend
-- Scan pipeline (`src/services/scanService.ts`) — uploads the photo, creates a Firestore scan
-  document at `patients/{uid}/scans/{scanId}`, then triggers the AI pipeline
+- **Local-first scan storage** (`src/storage/`, `src/services/scanService.ts`) — a scan (photo +
+  symptoms) is saved **only on the phone**: records in SQLite (`expo-sqlite`, schema versioned in
+  `migrations.ts`), photos in the app's private folder (`expo-file-system`). Nothing is uploaded
+  and no AI is called (`PLAN.md` D3). `npm test` runs the storage logic against Node's built-in
+  SQLite, including a guard test that fails if the default scan path imports cloud code.
+- Cloudinary photo upload (`src/services/cloudinaryService.ts`), the Firestore scan upload
+  (`src/services/cloudShareService.ts`) and the AI pipeline trigger below are **not called by
+  default** any more. They are kept for the explicit share / AI-analysis actions planned in
+  `PLAN.md` (Phases 0.8, 3.4 and 4), each behind its own consent screen.
 - AI pipeline trigger (`src/services/aiPipelineService.ts`) — calls the `../ai-pipeline`
   Cloudflare Worker (Gemini API + Firestore REST write-back) instead of a Firebase Cloud
   Function, since Cloud Functions require the paid Blaze plan for any outbound API call
-- Live scan subscription (`src/hooks/useScan.ts`) — Results screen updates the moment a doctor
-  sets `aiAnalysis.finalSeverity`, no polling
+- Live scan subscription (`src/hooks/useScan.ts`) and `ResultsScreen` — **currently unrouted**.
+  They show doctor-confirmed results from Firestore and return with the share flow (Phase 4).
 - Auth state hook (`src/hooks/useAuth.ts`) — session persists across app restarts via
   `initializeAuth` + `getReactNativePersistence(AsyncStorage)`
 - Screens: Onboarding/Consent, Auth (login/register), Home, Scan (camera capture), Symptom
-  Checklist, Results (pending + doctor-confirmed states)
+  Checklist, Scan Saved (confirms the scan stayed on the phone)
 - Client-side red-flag symptom detection (`src/utils/severityUtils.ts`) and the full-screen
   emergency alert (`src/components/RedFlagAlert.tsx`) — fires before any AI processing, per the
   build guide's safety requirement

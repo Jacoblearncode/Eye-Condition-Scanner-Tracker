@@ -27,7 +27,8 @@
         {
           "cameraPermission": "EyeChecker needs camera access to take eye recovery photos."
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }

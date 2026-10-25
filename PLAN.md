@@ -172,8 +172,9 @@ Fill in the "Answer" column; these drive scope.
 | Q15 | Keep the login/account for personal tracking, or make it optional and only ask for it when you share or book? | Local-first means personal tracking doesn't need a server account; login also gates AI use (abuse protection) | **Only when sharing or booking** (2026-10-25). Personal tracking works with no account. *Follow-up (confirmed 2026-10-25):* AI analysis isn't sharing or booking but still needs abuse protection on the Worker — use Firebase **anonymous sign-in** (silent, no email) the first time AI is used, and upgrade it to a full account (keeping the same user id) when the owner shares or books. |
 | Q16 | App language: English only, or also Bahasa Malaysia (or other)? | Affects all screen text, symptom wording and consent text | **Multilingual-compatible** (2026-10-25). Build the app so languages can be added; the specific list isn't chosen yet. **Confirmed:** start with **English + Bahasa Malaysia**, add others (e.g. Chinese, Tamil) later. Medical wording in each language needs review; symptom-reference ids stay language-neutral with translated text per language. |
 | Q17 | During an episode, can you open your eyes for a second or two in a dim room, or never? Is a photo with eyes closed (swollen/crusted lids) acceptable to record? | Decides the capture design for light sensitivity (Phase 1.6) | **Can open them, but it hurts; an eyes-closed photo is acceptable** (2026-10-25). The owner also asked that the patient's condition be **described with better clarity** — read as: because photos will be limited, the structured/written description must carry more weight and be easy to understand (**confirmed 2026-10-25**). See Phase 2.5–2.7. |
-| Q18 | You get pain and light sensitivity in every episode, and NHS lists both as **urgent-contact** signs (NEI/MedlinePlus are more conditional). What should the app do when you log them — e.g. "contact your clinic today" plus a one-tap share/booking? | The draft rule `rule.contact_urgently` would fire every episode; needs your preference and the clinic's thresholds | _?_ (needs owner + clinic) |
-| Q19 | NHS text comes with attribution/adaptation conditions (translation counts as adapting). Agree with: link to NHS pages rather than copy them, and base patient-facing wording on the NIH sources? | Affects how sources are shown and the Bahasa Malaysia plan (see `reference/conjunctivitis/README.md`) | _?_ |
+| Q18 | You get pain and light sensitivity in every episode, and NHS lists both as **urgent-contact** signs (NEI/MedlinePlus are more conditional). What should the app do when you log them — e.g. "contact your clinic today" plus a one-tap share/booking? | The draft rule `rule.contact_urgently` would fire every episode; needs your preference and the clinic's thresholds | **Yes — a quick action** (2026-10-25): when pain, light sensitivity or another contact-rule symptom is logged, show a one-tap action (e.g. "Contact my clinic": call / share summary / booking request). The *thresholds and wording* still need the clinic (reference rules stay `proposed-needs-clinician-decision`). Must work with no internet: the contact message and the clinic's phone number are stored on the device. |
+| Q19 | NHS text comes with attribution/adaptation conditions (translation counts as adapting). Agree with: link to NHS pages rather than copy them, and base patient-facing wording on the NIH sources? | Affects how sources are shown and the Bahasa Malaysia plan (see `reference/conjunctivitis/README.md`) | **Agreed** (2026-10-25): link to NHS pages instead of copying them; base patient-facing wording on the NIH sources; **plus a fallback in case it fails.** *My reading of "fallback" (confirm):* if a linked page can't be opened (offline, moved, removed) the app still shows its own short, sourced, paraphrased text from the reference file, and the quick "contact your clinic" action never depends on any web page. |
+| Q20 | Android can silently back up an app's data to your Google Drive (Expo's default is **on**). For a standalone build, should backup be **off** (data stays only on the phone; consistent with D3, but a lost phone loses everything until the encrypted export in 7.1b exists) or **on** (easy restore on a new phone, but copies your health photos into your Google backup)? | Only matters for an installed build, not Expo Go. Not changed yet. Recommendation: **off** until 7.1b exists. | _?_ |
 
 ---
 
@@ -298,14 +299,13 @@ Each step has an acceptance check. `[ ]` = not started.
 ### Phase 0 — Foundations & safety fixes
 *Goal: stop building on a shaky base. No new features.*
 
-- [ ] 0.1 Fix P6: align `AGENTS.md` with SDK 54 (or deliberately upgrade — owner's call).
-- [ ] 0.2 Confirm the app builds and runs on the owner's phone today (baseline). *Accept:* full
-      Scan → Results flow completes on the real device.
-- [ ] 0.3 **Local-first storage layer (D3, §2.2):** `expo-sqlite` for records + app-private
+- [x] 0.1 Fix P6: `AGENTS.md` now says SDK 54, tells future work to read the installed package types (docs.expo.dev redirects old versions to `latest`) and to use `npx expo install`. *(done 2026-10-25)*
+- [~] 0.2 Baseline. **Done in the cloud:** `npm ci`, `tsc` clean, Android bundle builds on Expo 54.0.35 / RN 0.81.5. **Still needs the owner's phone:** run the app on the Xiaomi and complete a full scan (see "Run it on your phone" in §9). *Accept:* full Scan → Saved flow completes on the real device.
+- [x] 0.3 **Local-first storage layer (D3, §2.2)** *(code + 18 automated tests done 2026-10-25; on-device check pending)*: `expo-sqlite` for records + app-private
       files for photos, behind a small repository interface so screens don't depend on Firestore.
       *Accept:* a scan (photo + symptoms) saves and reloads after an app restart with airplane
       mode on.
-- [ ] 0.4 **Stop automatic upload:** remove Cloudinary + Firestore writes from the default scan
+- [x] 0.4 **Stop automatic upload** *(done in code 2026-10-25; confirming with a network inspector on the phone is still to do)*: remove Cloudinary + Firestore writes from the default scan
       path (`scanService.ts`). Upload/AI/share become explicit actions behind consent screens.
       Keep that code for the share path. *Accept:* a normal scan sends **no** network request
       (verify with a network inspector).
@@ -554,6 +554,8 @@ Record every decision here with date and reason. Empty until the owner answers �
 | 2026-10-25 | Confirmed: D6 wording ("No" = AI doesn't decide urgency wording); Q17 reading (richer guided description + plain-language summary); Q15 anonymous sign-in for AI use; Q16 English + Bahasa Malaysia first | Owner answers |
 | 2026-10-25 | D7: public datasets may be downloaded and used as **reference** (examples + sanity check), not training and not a clinical authority; images stay out of git/app. Mendeley set `n9zp473wfw` downloaded and inspected; `reference/datasets/` added | Owner decision; inspection findings in `reference/datasets/README.md` |
 | 2026-10-25 | **D7 draft v0.1 written** in `reference/conjunctivitis/`: 17 symptom/context items, 10 trigger candidates, 9 self-care tips, 6 candidate contact rules, from four sources (NHS, NEI, two MedlinePlus pages). Not clinician-reviewed. CDC/NICE/StatPearls were unreachable and AAO forbids AI use, so none of those were used | Owner request ("draft the symptom reference first") |
+| 2026-10-25 | Q18: "contact my clinic" **quick action**, working offline, thresholds from the clinic · Q19: link to NHS pages, base patient wording on NIH sources, **plus a fallback** (own sourced paraphrase if a link fails; contact action never depends on the web — reading to confirm) | Owner answers |
+| 2026-10-25 | **Phase 0 started.** 0.1 done; 0.3 and 0.4 implemented: scans save only on the phone (SQLite + private photo folder), old Cloudinary/Firestore/AI upload moved to `cloudShareService.ts` and not called; Results route replaced by a "Scan saved" screen; 18 automated tests, mutation-checked; `ResultsScreen`/`useScan` left unrouted for Phase 4 | Implements D3 |
 | 2026-10-25 | Owner's existing clinic is the first pilot, via share link/PDF; reference marked "not clinician-reviewed" until that clinic reviews it | Owner answers Q4/Q11 |
 
 ---
@@ -573,11 +575,28 @@ Still outstanding (none block starting):
 - **Other datasets:** Kaggle conjunctivitis and Roboflow need the owner's own login to download
   (see `reference/datasets/README.md`); optional.
 
-**Start Phase 0 in this order** (safety and architecture before features):
-1. 0.1–0.2 Align docs with SDK 54; confirm the current app runs on the Xiaomi (baseline).
-2. 0.3–0.4 Local-first storage; stop automatic upload.
-3. 0.10–0.11 Optional login; multilingual foundation.
-4. 0.5–0.9 Rules and Worker fixes for the shared path; stateless AI call; consent text.
+**Phase 0 progress (2026-10-25):** 0.1 ✅ · 0.2 half (cloud checks pass; needs the phone) · 0.3 ✅ ·
+0.4 ✅ · 0.5–0.9 (rules/Worker/consent, shared path) and 0.10–0.11 (optional login, multilingual)
+still to do. Order from here:
 
-Then **Phase 1** (light-sensitive capture on the Xiaomi). The D7 reference (3.0) can be drafted
-in parallel since it needs research and ideally clinician review.
+1. **Owner:** run the app on the Xiaomi (below) and confirm a scan saves with airplane mode on.
+2. 0.10 optional login (so a fresh install can scan with no account) and 0.11 multilingual
+   foundation.
+3. 0.5–0.9 rules and Worker fixes for the shared path, stateless AI call, consent text.
+
+Then **Phase 1** (light-sensitive capture on the Xiaomi). The D7 reference clinical review can
+happen in parallel.
+
+### Run it on your phone (0.2 / 0.3 acceptance)
+
+The app still needs its Firebase settings, because login is still required until 0.10.
+
+1. On your computer, in `patient-app/`: copy `.env.example` to `.env` and fill in the Firebase
+   web config (the same one you used before), then `npm install` and `npx expo start`.
+2. Open the QR code in **Expo Go (SDK 54)** on the Xiaomi, log in, take a scan, choose symptoms,
+   tap Next. You should land on **"Scan saved on this phone"**.
+3. **Airplane-mode check:** turn on airplane mode, take another scan. It should save the same
+   way. Close and reopen the app: the scans are stored (there is no History screen yet — Phase 2.3 —
+   so for now the proof is that saving worked with no network and no error).
+4. Tell me what happens, including any error text. If `expo-sqlite` or the file copy fails on the
+   real phone, that is exactly what this check is for.

@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../hooks/useAuth';
-import { useScan } from '../hooks/useScan';
 import { AuthScreen } from '../screens/AuthScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ScanScreen } from '../screens/ScanScreen';
 import { SymptomScreen } from '../screens/SymptomScreen';
-import { ResultsScreen } from '../screens/ResultsScreen';
-import { uploadScan } from '../services/scanService';
+import { ScanSavedScreen } from '../screens/ScanSavedScreen';
+import { saveScanLocally } from '../services/scanService';
 
 export type RootStackParamList = {
   Onboarding: undefined;
@@ -17,22 +16,10 @@ export type RootStackParamList = {
   Home: undefined;
   Scan: undefined;
   Symptoms: { photoUri: string };
-  Results: { scanId: string };
+  Saved: { scanId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-function ResultsScreenContainer({ scanId, onAction }: { scanId: string; onAction: () => void }) {
-  const { finalSeverity, doctorNote, homeCareSteps } = useScan(scanId);
-  return (
-    <ResultsScreen
-      finalSeverity={finalSeverity}
-      doctorNote={doctorNote}
-      homeCareSteps={homeCareSteps}
-      onAction={onAction}
-    />
-  );
-}
 
 export function RootNavigator() {
   const { user, initializing } = useAuth();
@@ -67,19 +54,18 @@ export function RootNavigator() {
               {({ navigation, route }) => (
                 <SymptomScreen
                   onSubmit={async (symptoms) => {
-                    const scanId = await uploadScan(user, route.params.photoUri, symptoms);
-                    navigation.navigate('Results', { scanId });
+                    // Saved on this phone only; nothing is uploaded (PLAN.md D3).
+                    const scanId = await saveScanLocally({
+                      photoUri: route.params.photoUri,
+                      symptoms,
+                    });
+                    navigation.navigate('Saved', { scanId });
                   }}
                 />
               )}
             </Stack.Screen>
-            <Stack.Screen name="Results">
-              {({ navigation, route }) => (
-                <ResultsScreenContainer
-                  scanId={route.params.scanId}
-                  onAction={() => navigation.navigate('Home')}
-                />
-              )}
+            <Stack.Screen name="Saved">
+              {({ navigation }) => <ScanSavedScreen onDone={() => navigation.navigate('Home')} />}
             </Stack.Screen>
           </>
         )}

@@ -10,8 +10,10 @@
     "@tanstack/react-query": "^5.101.2",
     "expo": "^54.0.35",
     "expo-camera": "~17.0.10",
+    "expo-file-system": "~19.0.23",
     "expo-image": "~3.0.11",
     "expo-image-manipulator": "~14.0.8",
+    "expo-sqlite": "~16.0.10",
     "expo-status-bar": "~3.0.9",
     "firebase": "^12.15.0",
     "react": "19.1.0",
@@ -21,14 +23,18 @@
     "react-native-screens": "~4.16.0"
   },
   "devDependencies": {
+    "@types/node": "^22.20.5",
     "@types/react": "~19.1.10",
+    "tsx": "^4.23.15",
     "typescript": "~5.9.2"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tests"
   },
   "private": true
 }

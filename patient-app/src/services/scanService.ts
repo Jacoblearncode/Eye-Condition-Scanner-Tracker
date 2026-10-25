@@ -1,35 +1,17 @@
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import type { User } from 'firebase/auth';
-import { db } from './firebase';
-import { uploadPhotoToCloudinary } from './cloudinaryService';
-import { triggerAiAnalysis } from './aiPipelineService';
+import { getDb } from '../storage/database';
+import { deletePhoto, storePhoto } from '../storage/photoStorage';
+import { newScanId, removeScan, saveScan, type SaveScanInput } from '../storage/saveScan';
 
-// Matches the scan document shape from the build guide, Section 4.1/4.2.
-// aiAnalysis and doctorNote start empty — they're only ever populated by the
-// AI pipeline (see ../../../ai-pipeline) and the clinic dashboard, never by the patient app.
-export async function uploadScan(
-  user: User,
-  photoUri: string,
-  symptoms: string[]
-): Promise<string> {
-  const scanRef = doc(collection(db, 'patients', user.uid, 'scans'));
-  const scanId = scanRef.id;
+// Scans are saved on this phone only (PLAN.md D3, local-first). Nothing is uploaded and no
+// account is needed. Sharing and AI analysis are separate, explicit actions that come later.
+async function deps() {
+  return { db: await getDb(), storePhoto, deletePhoto, now: () => new Date(), newId: newScanId };
+}
 
-  const photoUrl = await uploadPhotoToCloudinary(photoUri);
+export async function saveScanLocally(input: SaveScanInput): Promise<string> {
+  return saveScan(await deps(), input);
+}
 
-  await setDoc(scanRef, {
-    photoUrl,
-    symptoms,
-    scanDate: serverTimestamp(),
-    uploadStatus: 'processing',
-    doctorNote: null,
-    aiAnalysis: null,
-  });
-
-  const idToken = await user.getIdToken();
-  triggerAiAnalysis(idToken, user.uid, scanId, photoUrl, symptoms).catch((err) => {
-    console.warn('AI pipeline trigger failed, scan will need manual review:', err);
-  });
-
-  return scanId;
+export async function deleteScanLocally(id: string): Promise<boolean> {
+  return removeScan(await deps(), id);
 }
