@@ -4,7 +4,7 @@ Living planning document. **Rule: nothing is built until the phase it belongs to
 "Decisions" resolved here.** If something isn't written down in this file, it is an assumption
 and should be confirmed before coding. Update the checkboxes and the Decision Log as we go.
 
-Last updated: 2026-10-25 · Status: **planning, no new code yet** · Q1–Q3, Q9–Q11, D1 answered
+Last updated: 2026-10-25 · Status: **planning, no new code yet** · Q1–Q3, Q9–Q14, D1 answered
 
 ---
 
@@ -62,6 +62,27 @@ unsigned upload), **Cloudflare Workers**, **Gemini API**.
 | AI-assisted booking | ❌ `appointments`/`clinics` rules exist, no UI, no data, no AI |
 | Reminders | ❌ none |
 
+### 2.1 Owner's episode history (seed data, as told by the owner 2026-10-25)
+
+| # | When | Diagnosis told by clinic | Treatment |
+|---|---|---|---|
+| 1 | Jan 2025 | Conjunctivitis | Cream, antibiotics, tablets for reduced irritation and inflammation |
+| 2 | Aug 2025 | Conjunctivitis | Same |
+| 3 | Feb 2026 | Conjunctivitis | Same |
+| 4 | First week of Sep 2026 | Conjunctivitis | Same |
+
+Notes (facts only, no conclusions):
+- Episodes were roughly **6–7 months apart**. That is a pattern worth showing the clinic; it does
+  not by itself say why. Months don't line up with a single season (Jan, Aug, Feb, Sep).
+- The owner reported "conjunctivitis" each time; **no type (viral / bacterial / allergic) was
+  recorded here.** Antibiotics being prescribed must **not** be read by the app or by us as
+  proof of a bacterial type — only the doctor can state the type, so it stays blank unless the
+  doctor confirms it.
+- Both eyes. Exact dates, durations, drug names and doses are not recorded yet; the app should
+  accept **month-level dates** and mark details "unknown" rather than forcing guesses.
+- Last episode was ~7 weeks before today (2026-10-25), so the app should start in **healthy /
+  weekly-baseline mode**, switching to daily scanning when a new episode begins.
+
 ### Current data model (from code)
 
 - `patients/{uid}/scans/{scanId}`: `photoUrl`, `symptoms[]`, `scanDate`, `uploadStatus`
@@ -107,9 +128,9 @@ Fill in the "Answer" column; these drive scope.
 | Q9 | Confirm the D1 interpretation: AI says "features consistent with these reference items" but does **not** name viral/bacterial/allergic until a doctor does. OK? | Defines the line between assistance and diagnosis | **Yes (2026-10-25).** The AI never names viral / bacterial / allergic; a doctor confirms the type. "Allergic" is also person-specific (triggers differ per person), which makes a personal trigger log valuable. |
 | Q10 | Do you wear contact lenses, and is this your first episode / recurring? Is it one eye or both? | Contact-lens-related infection is a red-flag context; affects the symptom checklist | **Normal spectacles, no contact lenses. Recurring: 4 episodes so far.** One eye vs. both: not yet answered (see Q12). (2026-10-25) |
 | Q11 | Do you have access to an eye clinician (even informally) who could review the symptom reference in D7? | Reference quality is the foundation of the "verifiable" design | **No dedicated reviewer yet**, but the owner visits an experienced clinic. Plan: ask that clinic to review the reference/pilot the visit summary (see Phase 4). Until reviewed, the reference is shown as "sourced from public guidance, not yet clinician-reviewed". (2026-10-25) |
-| Q12 | In your past episodes, was it one eye, both, or did it switch sides? | Decides whether the data model tracks per-eye or per-person, and affects reading of results | _?_ |
-| Q13 | When you're healthy, do you want a light check-in (e.g. weekly baseline photo) so we can catch the *start* of the next episode early? | Early detection depends on a personal "normal" baseline; adds scans when healthy | _?_ |
-| Q14 | Can you recall for past episodes: dates, what the doctor said it was (viral / bacterial / allergic), and medication given? | Lets us seed history and look for patterns behind the 4 recurrences | _?_ |
+| Q12 | In your past episodes, was it one eye, both, or did it switch sides? | Decides whether the data model tracks per-eye or per-person, and affects reading of results | **Both eyes** (2026-10-25). Data model is per-eye (left and right each get their own photo and symptoms per scan) so each eye's course can be compared. |
+| Q13 | When you're healthy, do you want a light check-in (e.g. weekly baseline photo) so we can catch the *start* of the next episode early? | Early detection depends on a personal "normal" baseline; adds scans when healthy | **Yes — weekly baseline** (2026-10-25). Daily during an episode, weekly when healthy. |
+| Q14 | Can you recall for past episodes: dates, what the doctor said it was (viral / bacterial / allergic), and medication given? | Lets us seed history and look for patterns behind the 4 recurrences | **Answered in part (2026-10-25)** — see §2.1 "Owner's episode history". Still unknown: exact dates, which eye(s) each time, medication names, and whether the doctor named a type. |
 
 ---
 
@@ -232,16 +253,21 @@ Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
 - [ ] 2.4 Replace hard-coded Home (P7) with real day count since onset, last scan, whether
       today's scan is done.
 - [ ] 2.2b **Episodes:** a condition can have several episodes (this is the 4th+). Let the owner
-      add **past episodes** (dates, doctor-confirmed type if known, medication, outcome) — needs
-      Q14. Timeline can show episodes side by side.
+      add **past episodes** (month-level dates allowed, doctor-confirmed type if known,
+      medication, outcome), pre-filled with the four in §2.1. Timeline can show episodes side by
+      side and the gap between them.
+- [ ] 2.2f **Per-eye records:** each scan stores a left and a right entry (Q12), so one eye can
+      be "clearer" than the other and that is visible in trends.
 - [ ] 2.2c **Trigger journal** (optional, quick): possible exposures/habits per day, e.g. contact
       with someone who has red eyes, eye rubbing, new cosmetics, dust/pollen, poor sleep, long
       screen time, seasonal change. Lists to be chosen with the owner/clinic, not assumed. Goal is
       pattern-spotting for the clinic, not claiming a cause.
 - [ ] 2.2d **Medication log:** what the clinic prescribed, start/stop dates, doses taken —
       recorded as the owner enters it; the app gives no medication advice.
-- [ ] 2.2e (if Q13 = yes) **Healthy-period baseline:** a weekly check-in photo + short symptom
-      check, so the "start of an episode" is detectable against the owner's own normal.
+- [ ] 2.2e **Two modes (Q13 = yes):** *healthy* = **weekly** baseline photo + short symptom
+      check; *episode* = **daily** scans. The owner switches to episode mode when symptoms
+      start, and the app can suggest it (never decide it) if a baseline scan or symptom check
+      looks different from the owner's normal. Starts today in healthy mode.
 - [ ] 2.5 Daily symptom log alongside the photo, using the D7 reference ids (discharge, itching,
       grittiness, light sensitivity, pain, vision change, crusting on waking, contact-lens use,
       one eye vs. both). Structured so it can be charted and shown to a doctor.
@@ -345,16 +371,18 @@ Record every decision here with date and reason. Empty until the owner answers �
 | 2026-10-25 | Q9 confirmed: AI never names viral/bacterial/allergic; doctor confirms the type | Owner decision |
 | 2026-10-25 | Goal 4 added: track recurrence (4 prior episodes), triggers and early signs. No contact lenses (spectacles). | Owner answer Q10 |
 | 2026-10-25 | D8 (proposed): public datasets are not used for training; at most a sanity-check test set. Owner's own doctor-confirmed episodes are the real ground truth | Datasets are web-scraped / SMOTE-synthetic / small / not phone photos; training a classifier = diagnosis |
+| 2026-10-25 | Q12–Q14: both eyes (per-eye data model); weekly baseline when healthy, daily during an episode; four past episodes recorded in §2.1 (Jan 2025, Aug 2025, Feb 2026, early Sep 2026), all told as conjunctivitis, same treatment each time | Owner answers |
 | 2026-10-25 | Owner's existing clinic is the first pilot, via share link/PDF; reference marked "not clinician-reviewed" until that clinic reviews it | Owner answers Q4/Q11 |
 
 ---
 
 ## 9. Suggested next step
 
-Q1–Q3, Q9–Q11 and D1 are answered. Still open: **Q12** (one eye / both / switching), **Q13**
-(healthy-period baseline scans?), **Q14** (past episode details), and the proposed **D8**
-(datasets). None block Phase 0, but Q12 should be settled before Phase 1.5 / 2.1 (per-eye data
-model).
+Q1–Q3, Q9–Q14 and D1 are answered. Still open: the proposed **D8** (datasets), the
+unanswered business questions **Q5–Q8** (region, cost, booking model, doctor source — needed only
+by Phase 5), **D2** (how redness is measured), **D3** (photo privacy) and **D4–D6**. Small
+gaps in the owner's history (exact dates, drug names, which eye each time) can be filled in
+later in the app. Nothing blocks Phase 0.
 
 Then start **Phase 0** (small, safety-focused) followed by **Phase 1** (capture quality on the
 Xiaomi), because every later feature depends on trustworthy, comparable photos. The D7 reference
