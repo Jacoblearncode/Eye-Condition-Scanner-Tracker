@@ -169,9 +169,9 @@ Fill in the "Answer" column; these drive scope.
 | Q12 | In your past episodes, was it one eye, both, or did it switch sides? | Decides whether the data model tracks per-eye or per-person, and affects reading of results | **Both eyes** (2026-10-25). Data model is per-eye (left and right each get their own photo and symptoms per scan) so each eye's course can be compared. |
 | Q13 | When you're healthy, do you want a light check-in (e.g. weekly baseline photo) so we can catch the *start* of the next episode early? | Early detection depends on a personal "normal" baseline; adds scans when healthy | **Yes — weekly baseline** (2026-10-25). Daily during an episode, weekly when healthy. |
 | Q14 | Can you recall for past episodes: dates, what the doctor said it was (viral / bacterial / allergic), and medication given? | Lets us seed history and look for patterns behind the 4 recurrences | **Answered in part (2026-10-25)** — see §2.1 "Owner's episode history". Still unknown: exact dates, which eye(s) each time, medication names, and whether the doctor named a type. |
-| Q15 | Keep the login/account for personal tracking, or make it optional and only ask for it when you share or book? | Local-first means personal tracking doesn't need a server account; login also gates AI use (abuse protection) | **Only when sharing or booking** (2026-10-25). Personal tracking works with no account. *Follow-up proposal (confirm):* AI analysis isn't sharing or booking but still needs abuse protection on the Worker — use Firebase **anonymous sign-in** (silent, no email) the first time AI is used, and upgrade it to a full account (keeping the same user id) when the owner shares or books. |
-| Q16 | App language: English only, or also Bahasa Malaysia (or other)? | Affects all screen text, symptom wording and consent text | **Multilingual-compatible** (2026-10-25). Build the app so languages can be added; the specific list isn't chosen yet. *Proposal:* start with **English + Bahasa Malaysia**, add others (e.g. Chinese, Tamil) later — confirm. Medical wording in each language needs review; symptom-reference ids stay language-neutral with translated text per language. |
-| Q17 | During an episode, can you open your eyes for a second or two in a dim room, or never? Is a photo with eyes closed (swollen/crusted lids) acceptable to record? | Decides the capture design for light sensitivity (Phase 1.6) | **Can open them, but it hurts; an eyes-closed photo is acceptable** (2026-10-25). The owner also asked that the patient's condition be **described with better clarity** — read as: because photos will be limited, the structured/written description must carry more weight and be easy to understand (confirm this reading). See Phase 2.5–2.7. |
+| Q15 | Keep the login/account for personal tracking, or make it optional and only ask for it when you share or book? | Local-first means personal tracking doesn't need a server account; login also gates AI use (abuse protection) | **Only when sharing or booking** (2026-10-25). Personal tracking works with no account. *Follow-up (confirmed 2026-10-25):* AI analysis isn't sharing or booking but still needs abuse protection on the Worker — use Firebase **anonymous sign-in** (silent, no email) the first time AI is used, and upgrade it to a full account (keeping the same user id) when the owner shares or books. |
+| Q16 | App language: English only, or also Bahasa Malaysia (or other)? | Affects all screen text, symptom wording and consent text | **Multilingual-compatible** (2026-10-25). Build the app so languages can be added; the specific list isn't chosen yet. **Confirmed:** start with **English + Bahasa Malaysia**, add others (e.g. Chinese, Tamil) later. Medical wording in each language needs review; symptom-reference ids stay language-neutral with translated text per language. |
+| Q17 | During an episode, can you open your eyes for a second or two in a dim room, or never? Is a photo with eyes closed (swollen/crusted lids) acceptable to record? | Decides the capture design for light sensitivity (Phase 1.6) | **Can open them, but it hurts; an eyes-closed photo is acceptable** (2026-10-25). The owner also asked that the patient's condition be **described with better clarity** — read as: because photos will be limited, the structured/written description must carry more weight and be easy to understand (**confirmed 2026-10-25**). See Phase 2.5–2.7. |
 
 ---
 
@@ -201,6 +201,16 @@ Recommendation shown first. Mark the chosen option and log it in §8.
   output), not free medical prose; the UI shows the item and its source so anyone can check it.
   The content must be sourced from reputable published guidance and ideally **reviewed by an
   eye clinician** — I will not invent medical claims.
+
+  **Owner decision (2026-10-25): proper datasets, downloaded, may be used as reference for D7.**
+  Done for the one relevant dataset that was reachable: the Mendeley eye-disease set
+  (CC BY 4.0) is fetched by `reference/datasets/fetch_mendeley.py`; findings, limits, credit
+  line and what could not be fetched are in `reference/datasets/README.md`. How they may be used:
+  as *visual examples and a sanity-check set* — **not** as a clinical authority and **not** for
+  training (D8). The main limits found: labels come from web searches and are unverified per
+  image; its "Normal" photos are tiny 56 × 56 px crops (useless as a healthy baseline); images
+  belong to third parties, so they stay out of the repo and the app. Every D7 item still needs
+  a citation to published guidance.
 - **D8 — Public eye-image datasets (new, 2026-10-25).** The owner found three: a Mendeley
   eye-disease image set, a Kaggle "Eye disease dataset", and a Roboflow conjunctivitis
   object-detection set (344 images). **Recommended: do not train a classifier on them; use them,
@@ -273,9 +283,8 @@ Recommendation shown first. Mark the chosen option and log it in §8.
   - It is a *suggestion of where to go*, not a diagnosis, and it never lowers a red-flag:
     emergency routing stays rule-based and independent of AI.
   - The AI never sends a booking request itself.
-  - *Ambiguity to confirm:* the owner wrote "D6: No, AI recommends the kind of doctor…". I read
-    "No" as **not** letting the AI decide urgency wording on its own (consistent with the
-    non-goals), while keeping the doctor-type recommendation. If that's wrong, say so.
+  - *Wording confirmed 2026-10-25:* "No" meant the AI does **not** decide urgency wording
+    itself; it recommends the kind of doctor, and the patient decides.
 
 ---
 
@@ -406,7 +415,8 @@ Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
 Decisions needed first: ~~D1~~, ~~D2~~, ~~Q9~~ (all decided), D7 (reference content still to be sourced).
 
 - [ ] 3.0 Build the D7 conjunctivitis reference (sourced, versioned) and have it clinically
-      reviewed if possible (Q11). Everything below cites it.
+      reviewed if possible (Q11). Everything below cites it. Datasets in
+      `reference/datasets/` serve as visual examples and a sanity-check set only.
 - [ ] 3.1 Side-by-side + slider comparison of any two scans.
 - [ ] 3.2 Measures per D2: self-ratings, eyes-closed/eyes-open photo features, opt-in AI pair
       comparison, and on-device colour metric for qualifying eyes-open photos — each shown
@@ -539,6 +549,8 @@ Record every decision here with date and reason. Empty until the owner answers �
 | 2026-10-25 | Q15: login only when sharing or booking (proposal: anonymous sign-in for AI use) · Q16: multilingual-compatible from the start (proposal: English + Bahasa Malaysia first) · Q17: clearer, richer condition description (guided entry + plain-language summary) | Owner answers |
 | 2026-10-25 | **D2 decided:** multi-signal measurement (self-ratings, photos, opt-in AI pair comparison, on-device metric), shown separately | Owner: yes |
 | 2026-10-25 | **D6 decided:** AI recommends the kind of doctor from the patient's specific condition, with reasons; patient decides and sends; emergency routing stays rule-based. ("No" in the answer read as: AI doesn't decide urgency wording itself — to confirm) | Owner answer |
+| 2026-10-25 | Confirmed: D6 wording ("No" = AI doesn't decide urgency wording); Q17 reading (richer guided description + plain-language summary); Q15 anonymous sign-in for AI use; Q16 English + Bahasa Malaysia first | Owner answers |
+| 2026-10-25 | D7: public datasets may be downloaded and used as **reference** (examples + sanity check), not training and not a clinical authority; images stay out of git/app. Mendeley set `n9zp473wfw` downloaded and inspected; `reference/datasets/` added | Owner decision; inspection findings in `reference/datasets/README.md` |
 | 2026-10-25 | Owner's existing clinic is the first pilot, via share link/PDF; reference marked "not clinician-reviewed" until that clinic reviews it | Owner answers Q4/Q11 |
 
 ---
@@ -547,13 +559,15 @@ Record every decision here with date and reason. Empty until the owner answers �
 
 Answered: Q1–Q17, D1, D2, D3, D4 (owner-initiated sharing), D5, D6, D8 (conditional).
 
-Small items to confirm (none block starting):
-- **Q15 follow-up:** anonymous sign-in for AI use, upgraded to a full account on share/book.
-- **Q16 follow-up:** which languages first (proposal: English + Bahasa Malaysia).
-- **Q17 reading:** "better clarity" = richer guided description + plain-language summary.
-- **D6 wording:** "No" read as "AI doesn't decide urgency wording itself".
-- **D7:** the conjunctivitis symptom reference still has to be sourced (and ideally reviewed by
-  the pilot clinic); guided-entry wording (2.6) and doctor-type mapping (5.2) depend on it.
+All earlier "to confirm" items are confirmed (Q15, Q16, Q17, D6).
+
+Still outstanding (none block starting):
+- **D7 content:** the conjunctivitis symptom reference must be sourced from published guidance
+  (datasets don't replace that) and ideally reviewed by the pilot clinic. The guided-entry
+  wording (2.6) and doctor-type mapping (5.2) depend on it. *Next concrete step:* I draft it
+  with citations for the owner to review.
+- **Other datasets:** Kaggle conjunctivitis and Roboflow need the owner's own login to download
+  (see `reference/datasets/README.md`); optional.
 
 **Start Phase 0 in this order** (safety and architecture before features):
 1. 0.1–0.2 Align docs with SDK 54; confirm the current app runs on the Xiaomi (baseline).
