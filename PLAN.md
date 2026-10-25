@@ -4,7 +4,7 @@ Living planning document. **Rule: nothing is built until the phase it belongs to
 "Decisions" resolved here.** If something isn't written down in this file, it is an assumption
 and should be confirmed before coding. Update the checkboxes and the Decision Log as we go.
 
-Last updated: 2026-10-25 · Status: **planning, no new code yet** · Q1–Q3 and D1 answered
+Last updated: 2026-10-25 · Status: **planning, no new code yet** · Q1–Q3, Q9–Q11, D1 answered
 
 ---
 
@@ -21,6 +21,11 @@ EyeChecker is a **personal eye-condition tracker** for the owner's own use first
    see the documented history, so they understand the patient better when they meet.
 3. **AI as an assistant, not a decision-maker.** AI helps with analysis and with **setting up
    bookings with suitable doctors**.
+4. **Understand and reduce recurrence.** *(Added 2026-10-25.)* The owner has had conjunctivitis
+   4 times and is building this to monitor it and help prevent frequent recurrence. So the app
+   tracks **episodes over the long run** (not just one), records possible triggers, and helps
+   notice the start of the next one early. It cannot promise prevention — it gives the owner
+   and the clinic better information to work out patterns.
 
 ### Non-goals (until explicitly changed)
 
@@ -94,14 +99,17 @@ Fill in the "Answer" column; these drive scope.
 | Q1 | Which phone(s) will you test on — Android, iPhone, both? (README mentions a Xiaomi.) | Camera APIs, flash, macro behaviour, push notifications differ | **Android, Xiaomi** (2026-10-25) |
 | Q2 | What condition(s) are you tracking right now (e.g. conjunctivitis, stye, chalazion, dry eye, post-surgery healing, pterygium…)? | Decides what "better/worse" means and what the AI should look for | **Conjunctivitis** (2026-10-25) |
 | Q3 | Timescale: days (acute, e.g. infection) or months (chronic)? How often would you scan? | Reminder cadence, timeline design | **Daily scans.** Conjunctivitis is an acute episode (days to a few weeks), so a condition has a start and an end ("resolved"). (2026-10-25) |
-| Q4 | Do real doctors/clinics already agree to use this, or is the clinic side hypothetical for now? | Decides whether to build the clinic view now or ship **export/share link** first | _?_ |
+| Q4 | Do real doctors/clinics already agree to use this, or is the clinic side hypothetical for now? | Decides whether to build the clinic view now or ship **export/share link** first | **Partly answered (2026-10-25):** no clinic is signed up to use the app, but there is a real clinic the owner already visits that is experienced with conjunctivitis and has the medication. Treat it as the first pilot via share link/PDF (D4); no integration assumed. |
 | Q5 | Country/region (for clinic directory, emergency numbers, privacy law)? | Booking data source, emergency copy, GDPR/HIPAA-style obligations | _?_ |
 | Q6 | Are you willing to pay anything (e.g. card for Firebase Blaze / storage)? Today everything is $0 by design. | Drives P3/P4 fixes and storage choice | _?_ |
 | Q7 | "Booking": should the app **book directly** into a clinic's calendar, or **send a request** the clinic confirms? | Direct booking needs clinic integrations; request-based is feasible | _?_ |
-| Q8 | Where do the "suitable doctors" come from — a list you curate, a public directory, clinics who sign up? | There is no doctor data today | _?_ |
-| Q9 | Confirm the D1 interpretation: AI says "features consistent with these reference items" but does **not** name viral/bacterial/allergic until a doctor does. OK? | Defines the line between assistance and diagnosis | _?_ |
-| Q10 | Do you wear contact lenses, and is this your first episode / recurring? Is it one eye or both? | Contact-lens-related infection is a red-flag context; affects the symptom checklist | _?_ |
-| Q11 | Do you have access to an eye clinician (even informally) who could review the symptom reference in D7? | Reference quality is the foundation of the "verifiable" design | _?_ |
+| Q8 | Where do the "suitable doctors" come from — a list you curate, a public directory, clinics who sign up? | There is no doctor data today | **Leaning (confirm):** start with a hand-curated list containing the owner's own clinic; widen later. |
+| Q9 | Confirm the D1 interpretation: AI says "features consistent with these reference items" but does **not** name viral/bacterial/allergic until a doctor does. OK? | Defines the line between assistance and diagnosis | **Yes (2026-10-25).** The AI never names viral / bacterial / allergic; a doctor confirms the type. "Allergic" is also person-specific (triggers differ per person), which makes a personal trigger log valuable. |
+| Q10 | Do you wear contact lenses, and is this your first episode / recurring? Is it one eye or both? | Contact-lens-related infection is a red-flag context; affects the symptom checklist | **Normal spectacles, no contact lenses. Recurring: 4 episodes so far.** One eye vs. both: not yet answered (see Q12). (2026-10-25) |
+| Q11 | Do you have access to an eye clinician (even informally) who could review the symptom reference in D7? | Reference quality is the foundation of the "verifiable" design | **No dedicated reviewer yet**, but the owner visits an experienced clinic. Plan: ask that clinic to review the reference/pilot the visit summary (see Phase 4). Until reviewed, the reference is shown as "sourced from public guidance, not yet clinician-reviewed". (2026-10-25) |
+| Q12 | In your past episodes, was it one eye, both, or did it switch sides? | Decides whether the data model tracks per-eye or per-person, and affects reading of results | _?_ |
+| Q13 | When you're healthy, do you want a light check-in (e.g. weekly baseline photo) so we can catch the *start* of the next episode early? | Early detection depends on a personal "normal" baseline; adds scans when healthy | _?_ |
+| Q14 | Can you recall for past episodes: dates, what the doctor said it was (viral / bacterial / allergic), and medication given? | Lets us seed history and look for patterns behind the 4 recurrences | _?_ |
 
 ---
 
@@ -131,6 +139,24 @@ Recommendation shown first. Mark the chosen option and log it in §8.
   output), not free medical prose; the UI shows the item and its source so anyone can check it.
   The content must be sourced from reputable published guidance and ideally **reviewed by an
   eye clinician** — I will not invent medical claims.
+- **D8 — Public eye-image datasets (new, 2026-10-25).** The owner found three: a Mendeley
+  eye-disease image set, a Kaggle "Eye disease dataset", and a Roboflow conjunctivitis
+  object-detection set (344 images). **Recommended: do not train a classifier on them; use them,
+  at most, as a small sanity-check test set.** Reasons, all from the dataset pages:
+  - The Mendeley set ([n9zp473wfw](https://data.mendeley.com/datasets/n9zp473wfw)) was gathered
+    from **Google image searches**, and its classes are balanced to 649 images each using
+    **SMOTE**, i.e. partly *synthetic* images — poor for judging real-world accuracy, and the
+    photos' copyright/labelling quality is unknown. I could not confirm its license; check the
+    "Licence" box on its page before any use.
+  - The Roboflow set ([eyezSmartDet/conjunctivitis](https://universe.roboflow.com/eyezsmartdet/conjunctivitis))
+    is CC BY 4.0 (needs attribution), but it is **object detection** (boxes), has no description,
+    and 344 images is small.
+  - A model trained to say "this is conjunctivitis" **is a diagnosis**, which D1/Q9 rule out.
+  - These are mostly web photos, not close-up phone photos from a Xiaomi under home lighting, so
+    results won't transfer.
+  - **Better ground truth is the owner's own data:** daily photos plus the doctor's confirmed
+    diagnosis per episode. Over time that is a verified, personal dataset (see Phase 3.6 / 4).
+  Kaggle set: not examined yet; the same checks (source, labels, license) apply.
 - **D2 — How do we measure "redness / swelling / healing"?**
   Options: (a) ask Gemini for a fixed rubric score per photo — easy but noisy across time;
   (b) send **pairs** of photos (previous vs. current) and ask for *change*, which is more reliable;
@@ -205,6 +231,17 @@ Decisions needed first: ~~Q2~~, ~~Q3~~ (answered), Q10.
       filter by condition and eye.
 - [ ] 2.4 Replace hard-coded Home (P7) with real day count since onset, last scan, whether
       today's scan is done.
+- [ ] 2.2b **Episodes:** a condition can have several episodes (this is the 4th+). Let the owner
+      add **past episodes** (dates, doctor-confirmed type if known, medication, outcome) — needs
+      Q14. Timeline can show episodes side by side.
+- [ ] 2.2c **Trigger journal** (optional, quick): possible exposures/habits per day, e.g. contact
+      with someone who has red eyes, eye rubbing, new cosmetics, dust/pollen, poor sleep, long
+      screen time, seasonal change. Lists to be chosen with the owner/clinic, not assumed. Goal is
+      pattern-spotting for the clinic, not claiming a cause.
+- [ ] 2.2d **Medication log:** what the clinic prescribed, start/stop dates, doses taken —
+      recorded as the owner enters it; the app gives no medication advice.
+- [ ] 2.2e (if Q13 = yes) **Healthy-period baseline:** a weekly check-in photo + short symptom
+      check, so the "start of an episode" is detectable against the owner's own normal.
 - [ ] 2.5 Daily symptom log alongside the photo, using the D7 reference ids (discharge, itching,
       grittiness, light sensitivity, pain, vision change, crusting on waking, contact-lens use,
       one eye vs. both). Structured so it can be charted and shown to a doctor.
@@ -238,6 +275,10 @@ Decisions needed first: ~~D1~~ (decided), D2, D7, Q9.
 
 Decisions needed first: Q4, D4.
 
+- [ ] 4.0 **Pilot with the owner's clinic:** take the visit summary (PDF/link) to the next real
+      appointment and ask the clinician what they'd actually want on it, whether the D7
+      reference reads correctly, and whether the doctor-confirmation step (3.6) fits how they
+      work. Record their feedback in §8 before building more.
 - [ ] 4.1 Visit summary: timeline, key photos, symptom log, trend — exportable as PDF and/or a
       time-limited, revocable share link.
 - [ ] 4.2 (If D4 = per-clinic access) patient grants/revokes a clinic; rules scoped to granted
@@ -301,14 +342,19 @@ Record every decision here with date and reason. Empty until the owner answers �
 | 2026-10-25 | Platform: Android (Xiaomi). Condition: conjunctivitis. Cadence: daily scans | Owner answers Q1–Q3 |
 | 2026-10-25 | D1: AI shows referenceable/verifiable observations labelled "AI-assisted · non-diagnostic"; no severity or condition label until a doctor/specialist confirms | Owner decision |
 | 2026-10-25 | D7 added: AI observations must map to a curated, sourced symptom reference so they can be verified | Follows from D1 |
+| 2026-10-25 | Q9 confirmed: AI never names viral/bacterial/allergic; doctor confirms the type | Owner decision |
+| 2026-10-25 | Goal 4 added: track recurrence (4 prior episodes), triggers and early signs. No contact lenses (spectacles). | Owner answer Q10 |
+| 2026-10-25 | D8 (proposed): public datasets are not used for training; at most a sanity-check test set. Owner's own doctor-confirmed episodes are the real ground truth | Datasets are web-scraped / SMOTE-synthetic / small / not phone photos; training a classifier = diagnosis |
+| 2026-10-25 | Owner's existing clinic is the first pilot, via share link/PDF; reference marked "not clinician-reviewed" until that clinic reviews it | Owner answers Q4/Q11 |
 
 ---
 
 ## 9. Suggested next step
 
-Q1–Q3 and D1 are answered. Remaining before/around Phase 0: **Q9** (confirm the diagnosis
-line), **Q10** (contact lenses / one vs. both eyes) and **Q11** (clinician access for reviewing
-the reference). None of these block Phase 0.
+Q1–Q3, Q9–Q11 and D1 are answered. Still open: **Q12** (one eye / both / switching), **Q13**
+(healthy-period baseline scans?), **Q14** (past episode details), and the proposed **D8**
+(datasets). None block Phase 0, but Q12 should be settled before Phase 1.5 / 2.1 (per-eye data
+model).
 
 Then start **Phase 0** (small, safety-focused) followed by **Phase 1** (capture quality on the
 Xiaomi), because every later feature depends on trustworthy, comparable photos. The D7 reference
